@@ -50,6 +50,8 @@ export default () => ({
             8453: { nativeCoin: 'ethereum', chainName: 'base' },
             84531: { nativeCoin: 'ethereum', chainName: 'base' },
             84532: { nativeCoin: 'ethereum', chainName: 'base' },
+            32769: { nativeCoin: 'zilliqa', chainName: 'zilliqa' },
+            33101: { nativeCoin: 'zilliqa', chainName: 'zilliqa' },
           },
         },
       },
