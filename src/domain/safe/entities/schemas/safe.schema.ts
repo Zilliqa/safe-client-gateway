@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const SafeSchema = z.object({
   address: AddressSchema,
-  nonce: z.number(),
+  nonce: z.number().string(),
   threshold: z.number(),
   owners: z.array(AddressSchema),
   masterCopy: AddressSchema,
