@@ -54,6 +54,8 @@ export class Chain {
   @ApiProperty()
   isTestnet: boolean;
   @ApiProperty()
+  zk: boolean;
+  @ApiProperty()
   nativeCurrency: ApiNativeCurrency;
   @ApiProperty()
   transactionService: string;
@@ -62,7 +64,11 @@ export class Chain {
   @ApiProperty()
   beaconChainExplorerUriTemplate: ApiBeaconChainExplorerUriTemplate;
   @ApiProperty()
+<<<<<<< HEAD
   disabledWallets: string[];
+=======
+  disabledWallets: Array<string>;
+>>>>>>> origin/staging
   @ApiPropertyOptional({ type: String, nullable: true })
   ensRegistryAddress: `0x${string}` | null;
   @ApiProperty()
@@ -70,7 +76,7 @@ export class Chain {
   @ApiProperty()
   contractAddresses: ContractAddresses;
   @ApiProperty()
-  features: string[];
+  features: Array<string>;
   @ApiProperty({
     type: 'array',
     items: {
@@ -94,18 +100,26 @@ export class Chain {
   shortName: string;
   @ApiProperty()
   theme: ApiTheme;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  recommendedMasterCopyVersion: string | null;
 
   constructor(args: {
     chainId: string;
     chainName: string;
     description: string;
     l2: boolean;
+    zk: boolean;
     nativeCurrency: NativeCurrency;
     transactionService: string;
     blockExplorerUriTemplate: BlockExplorerUriTemplate;
     beaconChainExplorerUriTemplate: BeaconChainExplorerUriTemplate;
+<<<<<<< HEAD
     disabledWallets: string[];
     features: string[];
+=======
+    disabledWallets: Array<string>;
+    features: Array<string>;
+>>>>>>> origin/staging
     gasPrice: Array<GasPriceOracle | GasPriceFixed | GasPriceFixedEIP1559>;
     publicRpcUri: RpcUri;
     rpcUri: RpcUri;
@@ -117,6 +131,7 @@ export class Chain {
     chainLogoUri: string | null;
     balancesProvider: BalancesProvider;
     contractAddresses: ContractAddresses;
+    recommendedMasterCopyVersion: string | null;
   }) {
     this.chainId = args.chainId;
     this.chainName = args.chainName;
@@ -124,6 +139,7 @@ export class Chain {
     this.chainLogoUri = args.chainLogoUri;
     this.l2 = args.l2;
     this.isTestnet = args.isTestnet;
+    this.zk = args.zk;
     this.nativeCurrency = args.nativeCurrency;
     this.transactionService = args.transactionService;
     this.blockExplorerUriTemplate = args.blockExplorerUriTemplate;
@@ -139,5 +155,6 @@ export class Chain {
     this.theme = args.theme;
     this.balancesProvider = args.balancesProvider;
     this.contractAddresses = args.contractAddresses;
+    this.recommendedMasterCopyVersion = args.recommendedMasterCopyVersion;
   }
 }

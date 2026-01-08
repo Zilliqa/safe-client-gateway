@@ -5,26 +5,41 @@ import type { PooledStakingStats } from '@/datasources/staking-api/entities/pool
 import type { DefiVaultStats } from '@/datasources/staking-api/entities/defi-vault-stats.entity';
 import type { Stake } from '@/datasources/staking-api/entities/stake.entity';
 import type { TransactionStatus } from '@/datasources/staking-api/entities/transaction-status.entity';
+import type { Raw } from '@/validation/entities/raw.entity';
+import type { DefiVaultStake } from '@/datasources/staking-api/entities/defi-vault-stake.entity';
+import type { DefiMorphoExtraReward } from '@/datasources/staking-api/entities/defi-morpho-extra-reward.entity';
+import type { RewardsFee } from '@/datasources/staking-api/entities/rewards-fee.entity';
 
 export const IStakingApi = Symbol('IStakingApi');
 
 export interface IStakingApi {
-  getDeployments(): Promise<Array<Deployment>>;
+  getDeployments(): Promise<Raw<Array<Deployment>>>;
 
-  getNetworkStats(): Promise<NetworkStats>;
+  getRewardsFee(contract: `0x${string}`): Promise<Raw<RewardsFee>>;
 
-  getDedicatedStakingStats(): Promise<DedicatedStakingStats>;
+  getNetworkStats(): Promise<Raw<NetworkStats>>;
 
-  getPooledStakingStats(pool: `0x${string}`): Promise<PooledStakingStats>;
+  getDedicatedStakingStats(): Promise<Raw<DedicatedStakingStats>>;
 
-  getDefiVaultStats(vault: `0x${string}`): Promise<Array<DefiVaultStats>>;
+  getPooledStakingStats(pool: `0x${string}`): Promise<Raw<PooledStakingStats>>;
+
+  getDefiVaultStats(vault: `0x${string}`): Promise<Raw<Array<DefiVaultStats>>>;
+
+  getDefiVaultStakes(args: {
+    safeAddress: `0x${string}`;
+    vault: `0x${string}`;
+  }): Promise<Raw<Array<DefiVaultStake>>>;
+
+  getDefiMorphoExtraRewards(
+    safeAddress: `0x${string}`,
+  ): Promise<Raw<Array<DefiMorphoExtraReward>>>;
 
   getStakes(args: {
     safeAddress: `0x${string}`;
     validatorsPublicKeys: Array<`0x${string}`>;
-  }): Promise<Stake[]>;
+  }): Promise<Raw<Array<Stake>>>;
 
   clearStakes(safeAddress: `0x${string}`): Promise<void>;
 
-  getTransactionStatus(txHash: `0x${string}`): Promise<TransactionStatus>;
+  getTransactionStatus(txHash: `0x${string}`): Promise<Raw<TransactionStatus>>;
 }

@@ -8,10 +8,11 @@ import { IBalancesRepository } from '@/domain/balances/balances.repository.inter
 import { IBlockchainRepository } from '@/domain/blockchain/blockchain.repository.interface';
 import { IChainsRepository } from '@/domain/chains/chains.repository.interface';
 import { ICollectiblesRepository } from '@/domain/collectibles/collectibles.repository.interface';
+import { IDelegatesV2Repository } from '@/domain/delegate/v2/delegates.v2.repository.interface';
 import { IMessagesRepository } from '@/domain/messages/messages.repository.interface';
 import { ISafeAppsRepository } from '@/domain/safe-apps/safe-apps.repository.interface';
 import { ISafeRepository } from '@/domain/safe/safe.repository.interface';
-import { IStakingRepository } from '@/domain/staking/staking.repository.interface';
+import { IStakingRepositoryWithRewardsFee } from '@/domain/staking/staking.repository.interface';
 import { ITransactionsRepository } from '@/domain/transactions/transactions.repository.interface';
 import { ILoggingService, LoggingService } from '@/logging/logging.interface';
 import {
@@ -21,7 +22,9 @@ import {
 import { Event } from '@/routes/hooks/entities/event.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { memoize, MemoizedFunction } from 'lodash';
+import memoize from 'lodash/memoize';
+import type { MemoizedFunction } from 'lodash';
+import { EarnRepository } from '@/domain/earn/earn.repository';
 
 @Injectable()
 export class EventCacheHelper {
@@ -40,14 +43,18 @@ export class EventCacheHelper {
     private readonly chainsRepository: IChainsRepository,
     @Inject(ICollectiblesRepository)
     private readonly collectiblesRepository: ICollectiblesRepository,
+    @Inject(IDelegatesV2Repository)
+    private readonly delegatesRepository: IDelegatesV2Repository,
     @Inject(IMessagesRepository)
     private readonly messagesRepository: IMessagesRepository,
     @Inject(ISafeAppsRepository)
     private readonly safeAppsRepository: ISafeAppsRepository,
     @Inject(ISafeRepository)
     private readonly safeRepository: ISafeRepository,
-    @Inject(IStakingRepository)
-    private readonly stakingRepository: IStakingRepository,
+    @Inject(IStakingRepositoryWithRewardsFee)
+    private readonly stakingRepository: IStakingRepositoryWithRewardsFee,
+    @Inject(EarnRepository)
+    private readonly earnRepository: EarnRepository,
     @Inject(ITransactionsRepository)
     private readonly transactionsRepository: ITransactionsRepository,
     @Inject(LoggingService)
@@ -88,8 +95,15 @@ export class EventCacheHelper {
       this.onTransactionEventMessageCreated.bind(this),
     [TransactionEventType.MESSAGE_CONFIRMATION]:
       this.onTransactionEventMessageConfirmation.bind(this),
+    [TransactionEventType.REORG_DETECTED]: () => [],
     [TransactionEventType.SAFE_CREATED]:
       this.onTransactionEventSafeCreated.bind(this),
+    [TransactionEventType.NEW_DELEGATE]:
+      this.onTransactionEventDelegate.bind(this),
+    [TransactionEventType.DELETED_DELEGATE]:
+      this.onTransactionEventDelegate.bind(this),
+    [TransactionEventType.UPDATED_DELEGATE]:
+      this.onTransactionEventDelegate.bind(this),
     [ConfigEventType.CHAIN_UPDATE]: this.onConfigEventChainUpdate.bind(this),
     [ConfigEventType.SAFE_APPS_UPDATE]:
       this.onConfigEventSafeAppsUpdate.bind(this),
@@ -123,10 +137,14 @@ export class EventCacheHelper {
       case TransactionEventType.MESSAGE_CONFIRMATION:
         this._logMessageEvent(event);
         break;
+      case TransactionEventType.NEW_DELEGATE:
+      case TransactionEventType.UPDATED_DELEGATE:
+      case TransactionEventType.DELETED_DELEGATE:
       case ConfigEventType.CHAIN_UPDATE:
       case ConfigEventType.SAFE_APPS_UPDATE:
         this._logEvent(event);
         break;
+      case TransactionEventType.REORG_DETECTED:
       case TransactionEventType.SAFE_CREATED:
         break;
     }
@@ -150,7 +168,9 @@ export class EventCacheHelper {
    * Logs the number of unsupported chain events for each chain and clears the store.
    * This function is public just for testing purposes.
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    disabled: process.env.NODE_ENV === 'test',
+  })
   public async logUnsupportedEvents(): Promise<void> {
     await Promise.all(
       this.unsupportedChains.map(async (chainId) => {
@@ -167,6 +187,15 @@ export class EventCacheHelper {
       }),
     );
     this.unsupportedChains = [];
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    disabled: process.env.NODE_ENV === 'test',
+  })
+  public clearSupportedChainsMemo(): void {
+    if (this.isSupportedChainMemo.cache.clear) {
+      this.isSupportedChainMemo.cache.clear();
+    }
   }
 
   // Transaction Service events
@@ -230,6 +259,10 @@ export class EventCacheHelper {
         chainId: event.chainId,
         safeAddress: event.address,
       }),
+      this.earnRepository.clearStakes({
+        chainId: event.chainId,
+        safeAddress: event.address,
+      }),
       this.safeRepository.clearModuleTransactions({
         chainId: event.chainId,
         safeAddress: event.address,
@@ -281,6 +314,10 @@ export class EventCacheHelper {
         address: event.address,
       }),
       this.stakingRepository.clearStakes({
+        chainId: event.chainId,
+        safeAddress: event.address,
+      }),
+      this.earnRepository.clearStakes({
         chainId: event.chainId,
         safeAddress: event.address,
       }),
@@ -485,6 +522,7 @@ export class EventCacheHelper {
         this.blockchainRepository.clearApi(event.chainId);
         // Testnet status may have changed
         this.stakingRepository.clearApi(event.chainId);
+        this.earnRepository.clearApi(event.chainId);
         // Transaction Service may have changed
         this.transactionsRepository.clearApi(event.chainId);
         this.balancesRepository.clearApi(event.chainId);
@@ -504,47 +542,94 @@ export class EventCacheHelper {
     return [this.safeRepository.clearIsSafe(event)];
   }
 
+  private onTransactionEventDelegate(
+    event: Extract<
+      Event,
+      {
+        type:
+          | TransactionEventType.NEW_DELEGATE
+          | TransactionEventType.UPDATED_DELEGATE
+          | TransactionEventType.DELETED_DELEGATE;
+      }
+    >,
+  ): Array<Promise<void>> {
+    // A delegate change affects:
+    // - the delegates associated to the Safe
+    return [
+      this.delegatesRepository.clearDelegates({
+        chainId: event.chainId,
+        safeAddress: event.address ?? undefined,
+      }),
+    ];
+  }
+
   private _logSafeTxEvent(
-    event: Event & { address: string; safeTxHash: string },
+    event: Extract<
+      Event,
+      {
+        type:
+          | TransactionEventType.PENDING_MULTISIG_TRANSACTION
+          | TransactionEventType.DELETED_MULTISIG_TRANSACTION
+          | TransactionEventType.EXECUTED_MULTISIG_TRANSACTION
+          | TransactionEventType.NEW_CONFIRMATION;
+      }
+    >,
   ): void {
     this.loggingService.info({
       type: EventCacheHelper.HOOK_TYPE,
-      eventType: event.type,
+      event_type: event.type,
       address: event.address,
-      chainId: event.chainId,
-      safeTxHash: event.safeTxHash,
+      chain_id: event.chainId,
+      safe_tx_hash: event.safeTxHash,
     });
   }
 
   private _logTxEvent(
-    event: Event & { address: string; txHash: string },
+    event: Extract<
+      Event,
+      {
+        type:
+          | TransactionEventType.MODULE_TRANSACTION
+          | TransactionEventType.INCOMING_ETHER
+          | TransactionEventType.OUTGOING_ETHER
+          | TransactionEventType.INCOMING_TOKEN
+          | TransactionEventType.OUTGOING_TOKEN;
+      }
+    >,
   ): void {
     this.loggingService.info({
       type: EventCacheHelper.HOOK_TYPE,
-      eventType: event.type,
+      event_type: event.type,
       address: event.address,
-      chainId: event.chainId,
-      txHash: event.txHash,
+      chain_id: event.chainId,
+      tx_hash: event.txHash,
     });
   }
 
   private _logMessageEvent(
-    event: Event & { address: string; messageHash: string },
+    event: Extract<
+      Event,
+      {
+        type:
+          | TransactionEventType.MESSAGE_CREATED
+          | TransactionEventType.MESSAGE_CONFIRMATION;
+      }
+    >,
   ): void {
     this.loggingService.info({
       type: EventCacheHelper.HOOK_TYPE,
-      eventType: event.type,
+      event_type: event.type,
       address: event.address,
-      chainId: event.chainId,
-      messageHash: event.messageHash,
+      chain_id: event.chainId,
+      message_hash: event.messageHash,
     });
   }
 
   private _logEvent(event: Event): void {
     this.loggingService.info({
       type: EventCacheHelper.HOOK_TYPE,
-      eventType: event.type,
-      chainId: event.chainId,
+      event_type: event.type,
+      chain_id: event.chainId,
     });
   }
 }

@@ -1,12 +1,19 @@
 import request from 'supertest';
 import type { RedisClientType } from 'redis';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
 import { redisClientFactory } from '@/__tests__/redis-client.factory';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import type { Server } from 'net';
+=======
+import { redisClientFactory } from '@/__tests__/redis-client.factory';
+import { TestAppProvider } from '@/__tests__/test-app.provider';
+import type { Server } from 'net';
+import { createBaseTestModule } from '@/__tests__/testing-module';
+>>>>>>> origin/staging
 
 describe('Get contract e2e test', () => {
   let app: INestApplication<Server>;
@@ -15,12 +22,7 @@ describe('Get contract e2e test', () => {
   const cacheKeyPrefix = crypto.randomUUID();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule();
 
     app = await new TestAppProvider().provide(moduleRef);
     await app.init();

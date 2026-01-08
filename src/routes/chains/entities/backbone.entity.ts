@@ -5,7 +5,11 @@ export class Backbone implements DomainBackbone {
   @ApiProperty()
   api_version!: string;
   @ApiPropertyOptional({ type: String, nullable: true })
+<<<<<<< HEAD
   headers!: string[] | null;
+=======
+  headers!: Array<string> | null;
+>>>>>>> origin/staging
   @ApiProperty()
   host!: string;
   @ApiProperty()

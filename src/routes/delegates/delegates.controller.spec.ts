@@ -1,32 +1,42 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import { omit } from 'lodash';
+=======
+import omit from 'lodash/omit';
+>>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import { delegateBuilder } from '@/domain/delegate/entities/__tests__/delegate.builder';
 import { pageBuilder } from '@/domain/entities/__tests__/page.builder';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
 import configuration from '@/config/entities/__tests__/configuration';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
+<<<<<<< HEAD
 import { AppModule } from '@/app.module';
 import { CacheModule } from '@/datasources/cache/cache.module';
 import { RequestScopedLoggingModule } from '@/logging/logging.module';
 import { NetworkModule } from '@/datasources/network/network.module';
+=======
+>>>>>>> origin/staging
 import { createDelegateDtoBuilder } from '@/routes/delegates/entities/__tests__/create-delegate.dto.builder';
 import { deleteDelegateDtoBuilder } from '@/routes/delegates/entities/__tests__/delete-delegate.dto.builder';
 import { deleteSafeDelegateDtoBuilder } from '@/routes/delegates/entities/__tests__/delete-safe-delegate.dto.builder';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import { getAddress } from 'viem';
+<<<<<<< HEAD
 import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
 import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
 import type { Server } from 'net';
+=======
+import type { Server } from 'net';
+import { rawify } from '@/validation/entities/raw.entity';
+import { createTestModule } from '@/__tests__/testing-module';
+>>>>>>> origin/staging
 
 describe('Delegates controller', () => {
   let app: INestApplication<Server>;
@@ -36,18 +46,9 @@ describe('Delegates controller', () => {
   beforeEach(async () => {
     jest.resetAllMocks();
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(configuration)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
+    const moduleFixture = await createTestModule({
+      config: configuration,
+    });
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
@@ -74,10 +75,10 @@ describe('Delegates controller', () => {
         .build();
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
-          return Promise.resolve({ data: chain, status: 200 });
+          return Promise.resolve({ data: rawify(chain), status: 200 });
         }
         if (url === `${chain.transactionService}/api/v1/delegates/`) {
-          return Promise.resolve({ data: delegatesPage, status: 200 });
+          return Promise.resolve({ data: rawify(delegatesPage), status: 200 });
         }
         return Promise.reject(`No matching rule for url: ${url}`);
       });
@@ -102,21 +103,18 @@ describe('Delegates controller', () => {
         .build();
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
-          return Promise.resolve({ data: chain, status: 200 });
+          return Promise.resolve({ data: rawify(chain), status: 200 });
         }
         if (url === `${chain.transactionService}/api/v1/delegates/`) {
-          return Promise.resolve({ data: delegatesPage, status: 200 });
+          return Promise.resolve({ data: rawify(delegatesPage), status: 200 });
         }
         return Promise.reject(`No matching rule for url: ${url}`);
       });
 
       await request(app.getHttpServer())
         .get(`/v1/chains/${chain.chainId}/delegates?safe=${safe}`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('Should return empty result', async () => {
@@ -130,10 +128,10 @@ describe('Delegates controller', () => {
         .build();
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
-          return Promise.resolve({ data: chain, status: 200 });
+          return Promise.resolve({ data: rawify(chain), status: 200 });
         }
         if (url === `${chain.transactionService}/api/v1/delegates/`) {
-          return Promise.resolve({ data: delegatesPage, status: 200 });
+          return Promise.resolve({ data: rawify(delegatesPage), status: 200 });
         }
         return Promise.reject(`No matching rule for url: ${url}`);
       });
@@ -165,12 +163,12 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       networkService.post.mockImplementation(({ url }) =>
         url === `${chain.transactionService}/api/v1/delegates/`
-          ? Promise.resolve({ status: 201, data: {} })
+          ? Promise.resolve({ status: 201, data: rawify({}) })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
 
@@ -203,12 +201,12 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       networkService.post.mockImplementation(({ url }) =>
         url === `${chain.transactionService}/api/v1/delegates/`
-          ? Promise.resolve({ status: 201, data: {} })
+          ? Promise.resolve({ status: 201, data: rawify({}) })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
 
@@ -223,7 +221,7 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       const transactionServiceUrl = `${chain.transactionService}/api/v1/delegates/`;
@@ -255,7 +253,7 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       const transactionServiceUrl = `${chain.transactionService}/api/v1/delegates/`;
@@ -285,13 +283,13 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       networkService.delete.mockImplementation(({ url }) =>
         url ===
         `${chain.transactionService}/api/v1/delegates/${deleteDelegateDto.delegate}`
-          ? Promise.resolve({ data: {}, status: 204 })
+          ? Promise.resolve({ data: rawify({}), status: 204 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
 
@@ -308,7 +306,7 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       const transactionServiceUrl = `${chain.transactionService}/api/v1/delegates/${deleteDelegateDto.delegate}`;
@@ -342,7 +340,7 @@ describe('Delegates controller', () => {
       const chain = chainBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       const transactionServiceUrl = `${chain.transactionService}/api/v1/delegates/${deleteDelegateDto.delegate}`;
@@ -415,13 +413,13 @@ describe('Delegates controller', () => {
       const deleteSafeDelegateDto = deleteSafeDelegateDtoBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       networkService.delete.mockImplementation(({ url }) =>
         url ===
         `${chain.transactionService}/api/v1/safes/${deleteSafeDelegateDto.safe}/delegates/${deleteSafeDelegateDto.delegate}`
-          ? Promise.resolve({ data: {}, status: 204 })
+          ? Promise.resolve({ data: rawify({}), status: 204 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
 
@@ -438,7 +436,7 @@ describe('Delegates controller', () => {
       const deleteSafeDelegateDto = deleteSafeDelegateDtoBuilder().build();
       networkService.get.mockImplementation(({ url }) =>
         url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`
-          ? Promise.resolve({ data: chain, status: 200 })
+          ? Promise.resolve({ data: rawify(chain), status: 200 })
           : Promise.reject(`No matching rule for url: ${url}`),
       );
       const transactionServiceUrl = `${chain.transactionService}/api/v1/safes/${deleteSafeDelegateDto.safe}/delegates/${deleteSafeDelegateDto.delegate}`;

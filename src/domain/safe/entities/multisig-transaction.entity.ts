@@ -1,4 +1,3 @@
-import { DataDecodedSchema } from '@/domain/data-decoder/entities/schemas/data-decoded.schema';
 import { buildPageSchema } from '@/domain/entities/schemas/page.schema.factory';
 import { SignatureType } from '@/domain/common/entities/signature-type.entity';
 import { Operation } from '@/domain/safe/entities/operation.entity';
@@ -6,17 +5,20 @@ import { AddressSchema } from '@/validation/entities/schemas/address.schema';
 import { HexSchema } from '@/validation/entities/schemas/hex.schema';
 import { NumericStringSchema } from '@/validation/entities/schemas/numeric-string.schema';
 import { z } from 'zod';
+import { CoercedNumberSchema } from '@/validation/entities/schemas/coerced-number.schema';
+import { HexBytesSchema } from '@/validation/entities/schemas/hexbytes.schema';
 
 export type Confirmation = z.infer<typeof ConfirmationSchema>;
 
 export type MultisigTransaction = z.infer<typeof MultisigTransactionSchema>;
 
-const ConfirmationSchema = z.object({
+export const ConfirmationSchema = z.object({
   owner: AddressSchema,
   submissionDate: z.coerce.date(),
   transactionHash: HexSchema.nullish().default(null),
   signatureType: z.nativeEnum(SignatureType),
-  signature: HexSchema.nullish().default(null),
+  // We don't validate signature length as they are on the Transaction Service
+  signature: HexBytesSchema.nullish().default(null),
 });
 
 export const MultisigTransactionSchema = z.object({
@@ -24,15 +26,15 @@ export const MultisigTransactionSchema = z.object({
   to: AddressSchema,
   value: NumericStringSchema,
   data: HexSchema.nullish().default(null),
-  dataDecoded: DataDecodedSchema.nullish().default(null),
   operation: z.nativeEnum(Operation),
   gasToken: AddressSchema.nullish().default(null),
-  safeTxGas: z.number().nullish().default(null),
-  baseGas: z.number().nullish().default(null),
+  safeTxGas: CoercedNumberSchema.nullish().default(null),
+  baseGas: CoercedNumberSchema.nullish().default(null),
   gasPrice: NumericStringSchema.nullish().default(null),
   proposer: AddressSchema.nullish().default(null),
+  proposedByDelegate: AddressSchema.nullish().default(null),
   refundReceiver: AddressSchema.nullish().default(null),
-  nonce: z.number(),
+  nonce: CoercedNumberSchema,
   executionDate: z.coerce.date().nullish().default(null),
   submissionDate: z.coerce.date(),
   modified: z.coerce.date().nullish().default(null),

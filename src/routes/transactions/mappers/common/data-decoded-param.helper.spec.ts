@@ -1,9 +1,18 @@
 import { faker } from '@faker-js/faker';
+<<<<<<< HEAD
 import type {
   DataDecoded,
   DataDecodedParameter,
 } from '@/domain/data-decoder/entities/data-decoded.entity';
+=======
+import {
+  DataDecodedAccuracy,
+  type DataDecoded,
+  type DataDecodedParameter,
+} from '@/domain/data-decoder/v2/entities/data-decoded.entity';
+>>>>>>> origin/staging
 import { DataDecodedParamHelper } from '@/routes/transactions/mappers/common/data-decoded-param.helper';
+import { getAddress } from 'viem';
 
 describe('DataDecoded param helper (Unit)', () => {
   const helper = new DataDecodedParamHelper();
@@ -13,6 +22,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: null,
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -24,6 +34,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -41,6 +52,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -58,6 +70,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transfer',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -75,6 +88,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -92,6 +106,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'safeTransferFrom',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -109,6 +124,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: faker.word.sample(),
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getFromParam(dataDecoded, 'fallback');
@@ -122,6 +138,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: null,
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -133,6 +150,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -150,6 +168,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -174,6 +193,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transfer',
         parameters: [firstParam, secondParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -191,6 +211,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded = {
         method: 'transfer',
         parameters: [firstParam, [firstParam]],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
         // We cast as it is invalid DataDecoded
       } as DataDecoded;
 
@@ -216,6 +237,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam, secondParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -239,6 +261,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam, secondParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -256,6 +279,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: faker.word.sample(),
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getToParam(dataDecoded, 'fallback');
@@ -269,6 +293,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: null,
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -280,6 +305,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -297,6 +323,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -321,6 +348,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transfer',
         parameters: [firstParam, secondParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -345,6 +373,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transfer',
         parameters: [firstParam, secondParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -374,6 +403,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam, secondParam, thirdParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -403,6 +433,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: 'transferFrom',
         parameters: [firstParam, secondParam, thirdParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -420,6 +451,7 @@ describe('DataDecoded param helper (Unit)', () => {
       const dataDecoded: DataDecoded = {
         method: faker.word.sample(),
         parameters: [firstParam],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       const fromParam = helper.getValueParam(dataDecoded, 'fallback');
@@ -440,7 +472,9 @@ describe('DataDecoded param helper (Unit)', () => {
             valueDecoded: [
               {
                 operation: 0,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -460,6 +494,7 @@ describe('DataDecoded param helper (Unit)', () => {
             ],
           },
         ],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       expect(helper.hasNestedDelegate(dataDecoded)).toBe(false);
@@ -476,7 +511,9 @@ describe('DataDecoded param helper (Unit)', () => {
             valueDecoded: [
               {
                 operation: 0,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -495,7 +532,9 @@ describe('DataDecoded param helper (Unit)', () => {
               },
               {
                 operation: 0,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -515,6 +554,7 @@ describe('DataDecoded param helper (Unit)', () => {
             ],
           },
         ],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       expect(helper.hasNestedDelegate(dataDecoded)).toBe(false);
@@ -540,7 +580,9 @@ describe('DataDecoded param helper (Unit)', () => {
             valueDecoded: [
               {
                 operation: 1,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -560,6 +602,7 @@ describe('DataDecoded param helper (Unit)', () => {
             ],
           },
         ],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       expect(helper.hasNestedDelegate(dataDecoded)).toBe(true);
@@ -576,7 +619,9 @@ describe('DataDecoded param helper (Unit)', () => {
             valueDecoded: [
               {
                 operation: 1,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -595,7 +640,9 @@ describe('DataDecoded param helper (Unit)', () => {
               },
               {
                 operation: 0,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: {
                   method: faker.word.sample(),
                   parameters: [
@@ -615,6 +662,7 @@ describe('DataDecoded param helper (Unit)', () => {
             ],
           },
         ],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       expect(helper.hasNestedDelegate(dataDecoded)).toBe(true);
@@ -631,17 +679,22 @@ describe('DataDecoded param helper (Unit)', () => {
             valueDecoded: [
               {
                 operation: 1,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: null,
               },
               {
                 operation: 0,
-                data: faker.string.hexadecimal({ length: 32 }),
+                to: getAddress(faker.finance.ethereumAddress()),
+                value: faker.string.numeric(),
+                data: faker.string.hexadecimal({ length: 32 }) as `0x${string}`,
                 dataDecoded: null,
               },
             ],
           },
         ],
+        accuracy: faker.helpers.arrayElement(DataDecodedAccuracy),
       };
 
       expect(helper.hasNestedDelegate(dataDecoded)).toBe(true);

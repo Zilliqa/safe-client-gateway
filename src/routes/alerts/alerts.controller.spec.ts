@@ -1,17 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 import crypto from 'crypto';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
 import configuration from '@/config/entities/__tests__/configuration';
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { NetworkModule } from '@/datasources/network/network.module';
 import {
   alertBuilder,
   alertLogBuilder,
@@ -49,14 +40,8 @@ import {
   ALERTS_CONFIGURATION_MODULE,
 } from '@/routes/alerts/configuration/alerts.configuration.module';
 import alertsConfiguration from '@/routes/alerts/configuration/__tests__/alerts.configuration';
-import jwtConfiguration from '@/datasources/jwt/configuration/__tests__/jwt.configuration';
-import {
-  JWT_CONFIGURATION_MODULE,
-  JwtConfigurationModule,
-} from '@/datasources/jwt/configuration/jwt.configuration.module';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
 import type { Server } from 'net';
+import { createTestModule } from '@/__tests__/testing-module';
 
 // The `x-tenderly-signature` header contains a cryptographic signature. The webhook request signature is
 // a HMAC SHA256 hash of concatenated signing secret, request payload, and timestamp, in this order.
@@ -99,28 +84,25 @@ describe('Alerts (Unit)', () => {
         },
       });
 
-      const moduleFixture: TestingModule = await Test.createTestingModule({
-        imports: [AppModule.register(testConfiguration)],
-      })
-        .overrideModule(JWT_CONFIGURATION_MODULE)
-        .useModule(JwtConfigurationModule.register(jwtConfiguration))
-        .overrideModule(ALERTS_CONFIGURATION_MODULE)
-        .useModule(AlertsConfigurationModule.register(alertsConfiguration))
-        .overrideModule(ALERTS_API_CONFIGURATION_MODULE)
-        .useModule(
-          AlertsApiConfigurationModule.register(alertsApiConfiguration),
-        )
-        .overrideModule(CacheModule)
-        .useModule(TestCacheModule)
-        .overrideModule(RequestScopedLoggingModule)
-        .useModule(TestLoggingModule)
-        .overrideModule(NetworkModule)
-        .useModule(TestNetworkModule)
-        .overrideModule(EmailApiModule)
-        .useModule(TestEmailApiModule)
-        .overrideModule(QueuesApiModule)
-        .useModule(TestQueuesApiModule)
-        .compile();
+      const moduleFixture = await createTestModule({
+        config: testConfiguration,
+        modules: [
+          {
+            originalModule: ALERTS_CONFIGURATION_MODULE,
+            testModule: AlertsConfigurationModule.register(alertsConfiguration),
+          },
+          {
+            originalModule: ALERTS_API_CONFIGURATION_MODULE,
+            testModule: AlertsApiConfigurationModule.register(
+              alertsApiConfiguration,
+            ),
+          },
+          {
+            originalModule: EmailApiModule,
+            testModule: TestEmailApiModule,
+          },
+        ],
+      });
 
       configurationService = moduleFixture.get(IConfigurationService);
       signingKey = configurationService.getOrThrow('alerts-route.signingKey');
@@ -891,19 +873,9 @@ describe('Alerts (Unit)', () => {
           },
         });
 
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-          imports: [AppModule.register(testConfiguration)],
-        })
-          .overrideModule(CacheModule)
-          .useModule(TestCacheModule)
-          .overrideModule(RequestScopedLoggingModule)
-          .useModule(TestLoggingModule)
-          .overrideModule(NetworkModule)
-          .useModule(TestNetworkModule)
-          .overrideModule(QueuesApiModule)
-          .useModule(TestQueuesApiModule)
-          .compile();
-
+        const moduleFixture = await createTestModule({
+          config: testConfiguration,
+        });
         app = moduleFixture.createNestApplication();
         await app.init();
       });

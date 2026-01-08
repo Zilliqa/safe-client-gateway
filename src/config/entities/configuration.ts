@@ -1,9 +1,13 @@
+import { getBlocklist } from '@/config/entities/blocklist.config';
+import { randomBytes } from 'crypto';
+
 // Custom configuration for the application
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default () => ({
   about: {
     name: 'safe-client-gateway',
-    version: process.env.APPLICATION_VERSION || 'v1.58.0',
+    version: process.env.APPLICATION_VERSION || 'v1.91.0',
     buildNumber: process.env.APPLICATION_BUILD_NUMBER,
   },
   accounts: {
@@ -23,6 +27,21 @@ export default () => ({
           `${25}`,
       ),
     },
+    encryption: {
+      // The encryption type to use. Defaults to 'local'.
+      // Supported values: 'aws', 'local'
+      type: process.env.ACCOUNTS_ENCRYPTION_TYPE || 'local',
+      awsKms: {
+        keyId: process.env.AWS_KMS_ENCRYPTION_KEY_ID,
+        algorithm: process.env.AWS_KMS_ENCRYPTION_ALGORITHM || 'aes-256-cbc',
+      },
+      local: {
+        algorithm: process.env.LOCAL_ENCRYPTION_ALGORITHM || 'aes-256-cbc',
+        key:
+          process.env.LOCAL_ENCRYPTION_KEY || randomBytes(32).toString('hex'),
+        iv: process.env.LOCAL_ENCRYPTION_IV || randomBytes(16).toString('hex'),
+      },
+    },
   },
   amqp: {
     url: process.env.AMQP_URL || 'amqp://localhost:5672',
@@ -40,6 +59,10 @@ export default () => ({
       process.env.AMQP_PREFETCH != null
         ? parseInt(process.env.AMQP_PREFETCH)
         : 100,
+    heartbeatIntervalInSeconds: +(
+      process.env.AMQP_HEARBEAT_INTERVAL_SECONDS || 60
+    ),
+    reconnectTimeInSeconds: +(process.env.AMQP_RECONNECT_TIME_SECONDS || 5),
   },
   application: {
     isProduction: process.env.CGW_ENV === 'production',
@@ -127,29 +150,95 @@ export default () => ({
     },
   },
   blockchain: {
+    blocklist: getBlocklist(),
     infura: {
       apiKey: process.env.INFURA_API_KEY,
     },
   },
+  bridge: {
+    baseUri: 'https://li.quest',
+    apiKey: process.env.BRIDGE_API_KEY,
+  },
+  contracts: {
+    trustedForDelegateCall: {
+      maxSequentialPages: parseInt(
+        process.env.TRUSTED_CONTRACTS_MAX_SEQUENTIAL_PAGES ?? `${3}`,
+      ),
+    },
+  },
   db: {
-    postgres: {
-      host: process.env.POSTGRES_HOST || 'localhost',
-      port: process.env.POSTGRES_PORT || '5432',
-      database: process.env.POSTGRES_DB || 'safe-client-gateway',
-      username: process.env.POSTGRES_USER || 'postgres',
-      password: process.env.POSTGRES_PASSWORD || 'postgres',
-      ssl: {
-        enabled: process.env.POSTGRES_SSL_ENABLED?.toLowerCase() === 'true',
-        requestCert:
-          process.env.POSTGRES_SSL_REQUEST_CERT?.toLowerCase() !== 'false',
-        // If the value is not explicitly set to false, default should be true
-        // If not false the server will reject any connection which is not authorized with the list of supplied CAs
-        // https://nodejs.org/docs/latest-v20.x/api/tls.html#tlscreateserveroptions-secureconnectionlistener
-        rejectUnauthorized:
-          process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED?.toLowerCase() !==
-          'false',
-        caPath: process.env.POSTGRES_SSL_CA_PATH,
+    migrator: {
+      // Determines if database migrations should be executed. By default, it will execute
+      executeMigrations:
+        process.env.DB_MIGRATIONS_EXECUTE?.toLowerCase() !== 'false',
+      // The number of times to retry running migrations in case of failure. Defaults to 5 retries.
+      numberOfRetries: process.env.DB_MIGRATIONS_NUMBER_OF_RETRIES ?? 5,
+      // The time interval (in milliseconds) to wait before retrying a failed migration. Defaults to 1000ms (1 second).
+      retryAfterMs: process.env.DB_MIGRATIONS_RETRY_AFTER_MS ?? 1000, // Milliseconds
+    },
+    orm: {
+      // Indicates if migrations should be automatically run when the ORM initializes. Set to false to control this behavior manually.
+      migrationsRun: false,
+      // Enables the automatic loading of entities into the ORM.
+      autoLoadEntities: true,
+      // Requires manual initialization of the database connection. Useful for controlling startup behavior.
+      manualInitialization: true,
+      // The name of the table where migrations are stored. Uses the environment variable value or defaults to '_migrations'.
+      migrationsTableName:
+        process.env.ORM_MIGRATION_TABLE_NAME || '_migrations',
+      cache:
+        process.env.ORM_CACHE_ENABLED?.toLowerCase() === 'true'
+          ? {
+              type: 'redis',
+              options: {
+                socket: {
+                  host: process.env.REDIS_HOST || 'localhost',
+                  port: process.env.REDIS_PORT || '6379',
+                },
+                username: process.env.REDIS_USER,
+                password: process.env.REDIS_PASS,
+              },
+              duration: parseInt(process.env.ORM_CACHE_DURATION ?? `${1000}`),
+              /**
+               * @todo Fix the underlying issue with the Redis client shutting down
+               */
+              ignoreErrors: true,
+            }
+          : false,
+    },
+    connection: {
+      postgres: {
+        host: process.env.POSTGRES_HOST || 'localhost',
+        port: process.env.POSTGRES_PORT || '5432',
+        database: process.env.POSTGRES_DB || 'safe-client-gateway',
+        schema: process.env.POSTGRES_SCHEMA || 'main', //@TODO: use this schema
+        username: process.env.POSTGRES_USER || 'postgres',
+        password: process.env.POSTGRES_PASSWORD || 'postgres',
+        ssl: {
+          enabled: process.env.POSTGRES_SSL_ENABLED?.toLowerCase() === 'true',
+          requestCert:
+            process.env.POSTGRES_SSL_REQUEST_CERT?.toLowerCase() !== 'false',
+          // If the value is not explicitly set to false, default should be true
+          // If not false the server will reject any connection which is not authorized with the list of supplied CAs
+          // https://nodejs.org/docs/latest-v20.x/api/tls.html#tlscreateserveroptions-secureconnectionlistener
+          rejectUnauthorized:
+            process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED?.toLowerCase() !==
+            'false',
+          caPath: process.env.POSTGRES_SSL_CA_PATH,
+        },
       },
+    },
+  }, // TODO: Unify base URLs with staking
+  earn: {
+    testnet: {
+      baseUri:
+        process.env.STAKING_TESTNET_API_BASE_URI ||
+        'https://api.testnet.kiln.fi',
+      apiKey: process.env.EARN_TESTNET_API_KEY,
+    },
+    mainnet: {
+      baseUri: process.env.STAKING_API_BASE_URI || 'https://api.kiln.fi',
+      apiKey: process.env.EARN_MAINNET_API_KEY,
     },
   },
   email: {
@@ -160,11 +249,15 @@ export default () => ({
     fromName: process.env.EMAIL_API_FROM_NAME || 'Safe',
   },
   expirationTimeInSeconds: {
+    deviatePercent: parseInt(process.env.EXPIRATION_DEVIATE_PERCENT ?? `${10}`),
     default: parseInt(process.env.EXPIRATION_TIME_DEFAULT_SECONDS ?? `${60}`),
     rpc: parseInt(process.env.EXPIRATION_TIME_RPC_SECONDS ?? `${15}`),
-    holesky: parseInt(process.env.HOLESKY_EXPIRATION_TIME_SECONDS ?? `${60}`),
+    hoodi: parseInt(process.env.HOODI_EXPIRATION_TIME_SECONDS ?? `${60}`),
     indexing: parseInt(process.env.EXPIRATION_TIME_INDEXING_SECONDS ?? `${5}`),
     staking: parseInt(process.env.EXPIRATION_TIME_STAKING_SECONDS ?? `${60}`),
+    zerionPositions: parseInt(
+      process.env.EXPIRATION_TIME_POSITIONS_SECONDS ?? `${300}`,
+    ),
     notFound: {
       default: parseInt(
         process.env.DEFAULT_NOT_FOUND_EXPIRE_TIME_SECONDS ?? `${30}`,
@@ -185,32 +278,53 @@ export default () => ({
     jsonLimit: process.env.EXPRESS_JSON_LIMIT ?? '1mb',
   },
   features: {
-    richFragments: process.env.FF_RICH_FRAGMENTS?.toLowerCase() === 'true',
     email: process.env.FF_EMAIL?.toLowerCase() === 'true',
     zerionBalancesChainIds:
       process.env.FF_ZERION_BALANCES_CHAIN_IDS?.split(',') ?? [],
-    swapsDecoding: process.env.FF_SWAPS_DECODING?.toLowerCase() === 'true',
-    twapsDecoding: process.env.FF_TWAPS_DECODING?.toLowerCase() === 'true',
+    zerionPositions:
+      process.env.FF_ZERION_POSITIONS_DISABLED?.toLowerCase() !== 'true',
     debugLogs: process.env.FF_DEBUG_LOGS?.toLowerCase() === 'true',
     configHooksDebugLogs:
       process.env.FF_CONFIG_HOOKS_DEBUG_LOGS?.toLowerCase() === 'true',
-    imitationMapping:
-      process.env.FF_IMITATION_MAPPING?.toLowerCase() === 'true',
     auth: process.env.FF_AUTH?.toLowerCase() === 'true',
-    confirmationView:
-      process.env.FF_CONFIRMATION_VIEW?.toLowerCase() === 'true',
-    eventsQueue: process.env.FF_EVENTS_QUEUE?.toLowerCase() === 'true',
     delegatesV2: process.env.FF_DELEGATES_V2?.toLowerCase() === 'true',
     counterfactualBalances:
       process.env.FF_COUNTERFACTUAL_BALANCES?.toLowerCase() === 'true',
     accounts: process.env.FF_ACCOUNTS?.toLowerCase() === 'true',
-    pushNotifications:
-      process.env.FF_PUSH_NOTIFICATIONS?.toLowerCase() === 'true',
-    nativeStaking: process.env.FF_NATIVE_STAKING?.toLowerCase() === 'true',
-    nativeStakingDecoding:
-      process.env.FF_NATIVE_STAKING_DECODING?.toLowerCase() === 'true',
-    targetedMessaging:
-      process.env.FF_TARGETED_MESSAGING?.toLowerCase() === 'true',
+    users: process.env.FF_USERS?.toLowerCase() === 'true',
+    hookHttpPostEvent:
+      process.env.FF_HOOK_HTTP_POST_EVENT?.toLowerCase() === 'true',
+    improvedAddressPoisoning:
+      process.env.FF_IMPROVED_ADDRESS_POISONING?.toLowerCase() === 'true',
+    hashVerification: {
+      api: process.env.FF_HASH_VERIFICATION_API?.toLowerCase() === 'true',
+      proposal:
+        process.env.FF_HASH_VERIFICATION_PROPOSAL?.toLowerCase() === 'true',
+    },
+    signatureVerification: {
+      api: process.env.FF_SIGNATURE_VERIFICATION_API?.toLowerCase() === 'true',
+      proposal:
+        process.env.FF_SIGNATURE_VERIFICATION_PROPOSAL?.toLowerCase() ===
+        'true',
+    },
+    messageVerification:
+      process.env.FF_MESSAGE_VERIFICATION?.toLowerCase() === 'true',
+    ethSign: process.env.FF_ETH_SIGN?.toLowerCase() === 'true',
+    trustedDelegateCall:
+      process.env.FF_TRUSTED_DELEGATE_CALL?.toLowerCase() === 'true',
+    // TODO: Remove this feature flag once the feature is established.
+    trustedForDelegateCallContractsList:
+      process.env.FF_TRUSTED_FOR_DELEGATE_CALL_CONTRACTS_LIST?.toLowerCase() ===
+      'true',
+    filterValueParsing:
+      process.env.FF_FILTER_VALUE_PARSING?.toLowerCase() === 'true',
+    vaultTransactionsMapping:
+      process.env.FF_VAULT_TRANSACTIONS_MAPPING?.toLowerCase() === 'true',
+    lifiTransactionsMapping:
+      process.env.FF_LIFITRANSACTIONS_MAPPING?.toLowerCase() === 'true',
+    cacheInFlightRequests:
+      process.env.HTTP_CLIENT_CACHE_IN_FLIGHT_REQUESTS?.toLowerCase() ===
+      'true',
   },
   httpClient: {
     // Timeout in milliseconds to be used for the HTTP client.
@@ -219,14 +333,26 @@ export default () => ({
       process.env.HTTP_CLIENT_REQUEST_TIMEOUT_MILLISECONDS ?? `${5_000}`,
     ),
   },
+  jwt: {
+    issuer: process.env.JWT_ISSUER,
+    secret: process.env.JWT_SECRET,
+  },
   locking: {
     baseUri:
       process.env.LOCKING_PROVIDER_API_BASE_URI ||
       'https://safe-locking.safe.global',
+    eligibility: {
+      fingerprintEncryptionKey: process.env.FINGERPRINT_ENCRYPTION_KEY,
+      nonEligibleCountryCodes:
+        process.env.FINGERPRINT_NON_ELIGIBLE_COUNTRY_CODES?.split(',') ?? [
+          'US',
+        ],
+    },
   },
   log: {
     level: process.env.LOG_LEVEL || 'debug',
     silent: process.env.LOG_SILENT?.toLowerCase() === 'true',
+    prettyColorize: process.env.LOG_PRETTY_COLORIZE?.toLowerCase() === 'true',
   },
   owners: {
     // There is no hook to invalidate the owners, so defaulting 0 disables the cache
@@ -237,11 +363,18 @@ export default () => ({
       lookupDistance: parseInt(process.env.IMITATION_LOOKUP_DISTANCE ?? `${3}`),
       prefixLength: parseInt(process.env.IMITATION_PREFIX_LENGTH ?? `${3}`),
       suffixLength: parseInt(process.env.IMITATION_SUFFIX_LENGTH ?? `${4}`),
+      // Note: due to high value formatted token values, we use bigint
+      // This means the value tolerance can only be an integer
+      valueTolerance: BigInt(process.env.IMITATION_VALUE_TOLERANCE ?? 1),
+      echoLimit: BigInt(process.env.IMITATION_ECHO_LIMIT ?? `${10}`),
     },
     history: {
       maxNestedTransfers: parseInt(
         process.env.MAX_NESTED_TRANSFERS ?? `${100}`,
       ),
+    },
+    transactionData: {
+      maxTokenInfoIndexSize: parseInt(process.env.MAX_TOKEN_INFO ?? `${100}`),
     },
     safe: {
       maxOverviews: parseInt(process.env.MAX_SAFE_OVERVIEWS ?? `${10}`),
@@ -258,10 +391,24 @@ export default () => ({
       privateKey:
         process.env.PUSH_NOTIFICATIONS_API_SERVICE_ACCOUNT_PRIVATE_KEY,
     },
+    getSubscribersBySafeTtlMilliseconds: +(
+      process.env.PUSH_NOTIFICATIONS_GET_SUBSCRIBERS_BY_SAFE_TTL_MILLISECONDS ||
+      60 * 1_000
+    ),
+    oauth2TokenTtlBufferInSeconds: parseInt(
+      process.env.PUSH_NOTIFICATIONS_API_OAUTH2_TOKEN_TTL_BUFFER_IN_SECONDS ??
+        `${120}`,
+    ),
   },
   redis: {
+    user: process.env.REDIS_USER,
+    pass: process.env.REDIS_PASS,
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || '6379',
+    disableOfflineQueue:
+      process.env.REDIS_DISABLE_OFFLINE_QUEUE?.toString() === 'true',
+    connectTimeout: process.env.REDIS_CONNECT_TIMEOUT || 10_000,
+    keepAlive: process.env.REDIS_KEEP_ALIVE || 30_000,
   },
   relay: {
     baseUri:
@@ -298,12 +445,52 @@ export default () => ({
   safeConfig: {
     baseUri:
       process.env.SAFE_CONFIG_BASE_URI || 'https://safe-config.safe.global/',
+    chains: {
+      maxSequentialPages: parseInt(
+        process.env.SAFE_CONFIG_CHAINS_MAX_SEQUENTIAL_PAGES ?? `${3}`,
+      ),
+    },
+  },
+  safeDataDecoder: {
+    baseUri:
+      process.env.SAFE_DATA_DECODER_BASE_URI ||
+      'https://safe-decoder.safe.global',
   },
   safeTransaction: {
     useVpcUrl: process.env.USE_TX_SERVICE_VPC_URL?.toLowerCase() === 'true',
   },
   safeWebApp: {
     baseUri: process.env.SAFE_WEB_APP_BASE_URI || 'https://app.safe.global',
+  },
+  spaces: {
+    addressBooks: {
+      maxItems: parseInt(
+        process.env.SPACES_MAX_ADDRESS_BOOK_ITEMS_PER_SPACE ?? `${500}`,
+      ),
+    },
+    maxSafesPerSpace: parseInt(
+      process.env.SPACES_MAX_SAFES_PER_SPACE ?? `${10}`,
+    ),
+    maxSpaceCreationsPerUser: parseInt(
+      process.env.MAX_SPACE_CREATIONS_PER_USER ?? `${3}`,
+    ),
+    maxInvites: parseInt(process.env.SPACES_MAX_INVITES ?? `${50}`),
+    rateLimit: {
+      creation: {
+        max: parseInt(process.env.SPACES_RATE_LIMIT_MAX ?? `${10}`),
+        windowSeconds: parseInt(
+          process.env.SPACES_RATE_LIMIT_WINDOW_SECONDS ?? `${600}`,
+        ),
+      },
+      addressBookUpsertion: {
+        max: parseInt(
+          process.env.SPACES_ADDRESS_BOOK_RATE_LIMIT_MAX ?? `${500}`,
+        ),
+        windowSeconds: parseInt(
+          process.env.SPACES_ADDRESS_BOOK_RATE_LIMIT_WINDOW_SECONDS ?? `${600}`,
+        ),
+      },
+    },
   },
   staking: {
     testnet: {
@@ -321,7 +508,10 @@ export default () => ({
     api: {
       1: 'https://api.cow.fi/mainnet',
       100: 'https://api.cow.fi/xdai',
+      137: 'https://api.cow.fi/polygon',
+      8453: 'https://api.cow.fi/base',
       42161: 'https://api.cow.fi/arbitrum_one',
+      43114: 'https://api.cow.fi/avalanche',
       11155111: 'https://api.cow.fi/sepolia',
     },
     explorerBaseUri:
@@ -340,5 +530,82 @@ export default () => ({
     maxNumberOfParts: parseInt(
       process.env.SWAPS_MAX_NUMBER_OF_PARTS ?? `${11}`,
     ),
+  },
+  targetedMessaging: {
+    fileStorage: {
+      // The type of file storage to use. Defaults to 'local'.
+      // Supported values: 'aws', 'local'
+      type: process.env.TARGETED_MESSAGING_FILE_STORAGE_TYPE || 'local',
+      aws: {
+        // This will be ignored if the TARGETED_MESSAGING_FILE_STORAGE_TYPE is set to 'local'.
+        // For reference, these environment variables should be present in the environment,
+        // but they are not transferred to the memory/configuration file:
+        // AWS_REGION
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        bucketName:
+          process.env.AWS_STORAGE_BUCKET_NAME || 'safe-client-gateway',
+        basePath: process.env.AWS_S3_BASE_PATH || 'assets/targeted-messaging',
+      },
+      local: {
+        // This will be ignored if the TARGETED_MESSAGING_FILE_STORAGE_TYPE is set to 'aws'.
+        baseDir:
+          process.env.TARGETED_MESSAGING_LOCAL_BASE_DIR ||
+          'assets/targeted-messaging',
+      },
+    },
+  },
+  csvExport: {
+    fileStorage: {
+      // The type of file storage to use. Defaults to 'local'.
+      // Supported values: 'aws', 'local'
+      type: process.env.CSV_EXPORT_FILE_STORAGE_TYPE || 'local',
+      aws: {
+        // This will be ignored if the CSV_EXPORT_FILE_STORAGE_TYPE is set to 'local'.
+        // For reference, these environment variables should be present in the environment,
+        // but they are not transferred to the memory/configuration file:
+        // AWS_REGION
+        accessKeyId: process.env.CSV_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.CSV_AWS_SECRET_ACCESS_KEY,
+        bucketName:
+          process.env.CSV_AWS_STORAGE_BUCKET_NAME || 'safe-client-gateway',
+        basePath: process.env.CSV_AWS_S3_BASE_PATH || 'assets/csv-export',
+      },
+      local: {
+        // This will be ignored if the CSV_EXPORT_FILE_STORAGE_TYPE is set to 'aws'.
+        baseDir: process.env.CSV_EXPORT_LOCAL_BASE_DIR || 'assets/csv-export',
+      },
+    },
+    // The time-to-live (TTL) for the signed URLs generated for CSV exports.
+    // Defaults to 3600 seconds (1 hour).
+    signedUrlTtlSeconds: parseInt(
+      process.env.CSV_EXPORT_SIGNED_URL_TTL_SECONDS ?? `${60 * 60}`,
+    ),
+    // BullMq queue configuration for CSV exports.
+    queue: {
+      removeOnComplete: {
+        age: parseInt(
+          process.env.CSV_EXPORT_QUEUE_REMOVE_ON_COMPLETE_AGE ?? `${86400}`,
+        ), // 24 hours
+        count: parseInt(
+          process.env.CSV_EXPORT_QUEUE_REMOVE_ON_COMPLETE_COUNT ?? `${1000}`,
+        ), // last 1000
+      },
+      removeOnFail: {
+        age: parseInt(
+          process.env.CSV_EXPORT_QUEUE_REMOVE_ON_FAIL_AGE ?? `${43200}`,
+        ), // 12 hours
+        count: parseInt(
+          process.env.CSV_EXPORT_QUEUE_REMOVE_ON_FAIL_COUNT ?? `${100}`,
+        ), // last 100
+      },
+      backoff: {
+        type: process.env.CSV_EXPORT_QUEUE_BACKOFF_TYPE || 'exponential',
+        delay: parseInt(
+          process.env.CSV_EXPORT_QUEUE_BACKOFF_DELAY ?? `${2000}`,
+        ), // 2 seconds
+      },
+      attempts: parseInt(process.env.CSV_EXPORT_QUEUE_ATTEMPTS ?? `${3}`),
+    },
   },
 });

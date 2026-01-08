@@ -6,11 +6,15 @@ import {
 } from '@nestjs/swagger';
 import { DeviceType } from '@/domain/notifications/v1/entities/device.entity';
 import { SafeRegistration } from '@/routes/notifications/v1/entities/safe-registration.entity';
+<<<<<<< HEAD
+=======
+import type { UUID } from 'crypto';
+>>>>>>> origin/staging
 
 @ApiExtraModels(SafeRegistration)
 export class RegisterDeviceDto {
   @ApiPropertyOptional({ type: String, nullable: true })
-  uuid?: string;
+  uuid?: UUID;
   @ApiProperty()
   cloudMessagingToken!: string;
   @ApiProperty()
@@ -27,5 +31,5 @@ export class RegisterDeviceDto {
     type: 'array',
     items: { $ref: getSchemaPath(SafeRegistration) },
   })
-  safeRegistrations!: SafeRegistration[];
+  safeRegistrations!: Array<SafeRegistration>;
 }

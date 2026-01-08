@@ -1,13 +1,21 @@
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import { Test } from '@nestjs/testing';
+=======
+>>>>>>> origin/staging
 import type { RedisClientType } from 'redis';
 import request from 'supertest';
-import { AppModule } from '@/app.module';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { redisClientFactory } from '@/__tests__/redis-client.factory';
+<<<<<<< HEAD
 import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import type { SafeApp } from '@/routes/safe-apps/entities/safe-app.entity';
 import type { Server } from 'net';
+=======
+import type { SafeApp } from '@/routes/safe-apps/entities/safe-app.entity';
+import type { Server } from 'net';
+import { createBaseTestModule } from '@/__tests__/testing-module';
+>>>>>>> origin/staging
 
 describe('Get Safe Apps e2e test', () => {
   let app: INestApplication<Server>;
@@ -16,12 +24,7 @@ describe('Get Safe Apps e2e test', () => {
   const cacheKeyPrefix = crypto.randomUUID();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule({ cacheKeyPrefix });
 
     app = await new TestAppProvider().provide(moduleRef);
     await app.init();

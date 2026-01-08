@@ -77,10 +77,17 @@ export class KilnNativeStakingHelper {
    * @param publicKeys - the public keys to split
    * @returns
    */
+<<<<<<< HEAD
   public splitPublicKeys(publicKeys: `0x${string}`): `0x${string}`[] {
     // Remove initial `0x` of decoded `_publicKeys`
     const publicKeysString = publicKeys.slice(2);
     const publicKeysArray: `0x${string}`[] = [];
+=======
+  public splitPublicKeys(publicKeys: `0x${string}`): Array<`0x${string}`> {
+    // Remove initial `0x` of decoded `_publicKeys`
+    const publicKeysString = publicKeys.slice(2);
+    const publicKeysArray: Array<`0x${string}`> = [];
+>>>>>>> origin/staging
     for (
       let i = 0;
       i < publicKeysString.length;

@@ -1,8 +1,13 @@
 import { AuthPayload } from '@/domain/auth/entities/auth-payload.entity';
+<<<<<<< HEAD
 import {
   UpsertSubscriptionsDto,
   UpsertSubscriptionsDtoSchema,
 } from '@/routes/notifications/v1/entities/upsert-subscriptions.dto.entity';
+=======
+import { UpsertSubscriptionsDto } from '@/routes/notifications/v2/entities/upsert-subscriptions.dto.entity';
+import { UpsertSubscriptionsDtoSchema } from '@/domain/notifications/v2/entities/upsert-subscriptions.dto.entity';
+>>>>>>> origin/staging
 import { NotificationsServiceV2 } from '@/routes/notifications/v2/notifications.service';
 import { Auth } from '@/routes/auth/decorators/auth.decorator';
 import { AuthGuard } from '@/routes/auth/guards/auth.guard';
@@ -19,10 +24,24 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+<<<<<<< HEAD
 import { ApiTags } from '@nestjs/swagger';
 import { UUID } from 'crypto';
 import { OptionalAuthGuard } from '@/routes/auth/guards/optional-auth.guard';
 import { NotificationType } from '@/domain/notifications/v2/entities/notification-type.entity';
+=======
+import {
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
+import { UUID } from 'crypto';
+import { OptionalAuthGuard } from '@/routes/auth/guards/optional-auth.guard';
+import { NotificationType } from '@/datasources/notifications/entities/notification-type.entity.db';
+import { DeleteAllSubscriptionsDtoSchema } from '@/domain/notifications/v2/entities/delete-all-subscriptions.dto.entity';
+import { DeleteAllSubscriptionsDto } from '@/routes/notifications/v2/entities/delete-all-subscriptions.dto.entity';
+>>>>>>> origin/staging
 
 @ApiTags('notifications')
 @Controller({ path: '', version: '2' })
@@ -75,6 +94,30 @@ export class NotificationsControllerV2 {
     });
   }
 
+<<<<<<< HEAD
+=======
+  @ApiOperation({
+    summary: 'Delete all subscriptions of a device',
+    description:
+      'Delete all subscriptions of a Safe on a device. This will delete all subscriptions of a Safe on a device for all chains passed in the request body.',
+  })
+  @ApiNotFoundResponse({
+    description: 'No subscription was found',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'The request body is invalid',
+  })
+  @Delete('notifications/subscriptions')
+  public async deleteAllSubscriptions(
+    @Body(new ValidationPipe(DeleteAllSubscriptionsDtoSchema))
+    deleteAllSubscriptionsDto: DeleteAllSubscriptionsDto,
+  ): Promise<void> {
+    return this.notificationsService.deleteAllSubscriptions(
+      deleteAllSubscriptionsDto,
+    );
+  }
+
+>>>>>>> origin/staging
   @Delete('chains/:chainId/notifications/devices/:deviceUuid')
   deleteDevice(
     @Param('chainId', new ValidationPipe(NumericStringSchema)) _chainId: string,

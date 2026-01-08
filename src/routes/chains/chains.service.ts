@@ -12,7 +12,10 @@ import {
   cursorUrlFromLimitAndOffset,
 } from '@/routes/common/pagination/pagination.data';
 import { IndexingStatus } from '@/routes/chains/entities/indexing-status.entity';
+<<<<<<< HEAD
 import { IBlockchainApiManager } from '@/domain/interfaces/blockchain-api.manager.interface';
+=======
+>>>>>>> origin/staging
 
 @Injectable()
 export class ChainsService {
@@ -40,6 +43,7 @@ export class ChainsService {
     const previousURL = cursorUrlFromLimitAndOffset(routeUrl, result.previous);
 
     const chains = result.results.map((chain) => {
+<<<<<<< HEAD
       return new Chain({
         chainId: chain.chainId,
         chainName: chain.chainName,
@@ -63,6 +67,9 @@ export class ChainsService {
         balancesProvider: chain.balancesProvider,
         contractAddresses: chain.contractAddresses,
       });
+=======
+      return new Chain(chain);
+>>>>>>> origin/staging
     });
 
     return {
@@ -75,6 +82,7 @@ export class ChainsService {
 
   async getChain(chainId: string): Promise<Chain> {
     const result = await this.chainsRepository.getChain(chainId);
+<<<<<<< HEAD
     return new Chain({
       chainId: result.chainId,
       chainName: result.chainName,
@@ -98,6 +106,9 @@ export class ChainsService {
       balancesProvider: result.balancesProvider,
       contractAddresses: result.contractAddresses,
     });
+=======
+    return new Chain(result);
+>>>>>>> origin/staging
   }
 
   async getAboutChain(chainId: string): Promise<AboutChain> {
@@ -115,7 +126,7 @@ export class ChainsService {
     return this.backboneRepository.getBackbone(chainId);
   }
 
-  async getMasterCopies(chainId: string): Promise<MasterCopy[]> {
+  async getMasterCopies(chainId: string): Promise<Array<MasterCopy>> {
     const result = await this.chainsRepository.getSingletons(chainId);
 
     return result.map((singleton) => ({
@@ -125,6 +136,7 @@ export class ChainsService {
   }
 
   async getIndexingStatus(chainId: string): Promise<IndexingStatus> {
+<<<<<<< HEAD
     const [indexingStatus, blockchainApi] = await Promise.all([
       this.chainsRepository.getIndexingStatus(chainId),
       this.blockchainApiManager.getApi(chainId),
@@ -140,6 +152,18 @@ export class ChainsService {
 
     return new IndexingStatus({
       lastSync: Number(block.timestamp),
+=======
+    const indexingStatus =
+      await this.chainsRepository.getIndexingStatus(chainId);
+
+    const lastSync = Math.min(
+      indexingStatus.erc20BlockTimestamp.getTime(),
+      indexingStatus.masterCopiesBlockTimestamp.getTime(),
+    );
+
+    return new IndexingStatus({
+      lastSync,
+>>>>>>> origin/staging
       synced: indexingStatus.synced,
     });
   }

@@ -1,6 +1,11 @@
 import { ChainsRepositoryModule } from '@/domain/chains/chains.repository.interface';
 import { ContractsRepositoryModule } from '@/domain/contracts/contracts.repository.interface';
+<<<<<<< HEAD
 import { DataDecodedRepositoryModule } from '@/domain/data-decoder/data-decoded.repository.interface';
+=======
+import { DataDecoderRepositoryModule } from '@/domain/data-decoder/v2/data-decoder.repository.module';
+import { EarnRepositoryModule } from '@/domain/earn/earn.repository.module';
+>>>>>>> origin/staging
 import { HumanDescriptionRepositoryModule } from '@/domain/human-description/human-description.repository.interface';
 import { SafeAppsRepositoryModule } from '@/domain/safe-apps/safe-apps.repository.interface';
 import { SafeRepositoryModule } from '@/domain/safe/safe.repository.interface';
@@ -35,6 +40,7 @@ import { MultisigTransactionDetailsMapper } from '@/routes/transactions/mappers/
 import { MultisigTransactionExecutionDetailsMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-execution-details.mapper';
 import { MultisigTransactionExecutionInfoMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-execution-info.mapper';
 import { MultisigTransactionStatusMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-status.mapper';
+import { MultisigTransactionNoteMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-note.mapper';
 import { MultisigTransactionMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction.mapper';
 import { QueuedItemsMapper } from '@/routes/transactions/mappers/queued-items/queued-items.mapper';
 import { TransactionPreviewMapper } from '@/routes/transactions/mappers/transaction-preview.mapper';
@@ -47,36 +53,61 @@ import { TransferMapper } from '@/routes/transactions/mappers/transfers/transfer
 import { TransactionsController } from '@/routes/transactions/transactions.controller';
 import { TransactionsService } from '@/routes/transactions/transactions.service';
 import { Module } from '@nestjs/common';
+<<<<<<< HEAD
+=======
+import { TransactionVerifierHelper } from '@/routes/transactions/helpers/transaction-verifier.helper';
+import { DelegatesV2RepositoryModule } from '@/domain/delegate/v2/delegates.v2.repository.interface';
+import { KilnVaultHelperModule } from '@/routes/transactions/helpers/kiln-vault.helper';
+import { VaultTransactionMapper } from '@/routes/transactions/mappers/common/vault-transaction.mapper';
+import { BridgeTransactionMapper } from '@/routes/transactions/mappers/common/bridge-transaction.mapper';
+import { LiFiDecoderModule } from '@/domain/bridge/contracts/decoders/lifi-decoder.helper';
+import { LiFiHelperModule } from '@/routes/transactions/helpers/lifi-helper';
+import { BridgeRepositoryModule } from '@/domain/bridge/bridge.repository.module';
+>>>>>>> origin/staging
 
 @Module({
   controllers: [TransactionsController],
   imports: [
     AddressInfoModule,
+<<<<<<< HEAD
+=======
+    BridgeRepositoryModule,
+>>>>>>> origin/staging
     ChainsRepositoryModule,
     ContractsRepositoryModule,
-    DataDecodedRepositoryModule,
-    HumanDescriptionRepositoryModule,
-    SafeRepositoryModule,
-    SafeAppsRepositoryModule,
+    DataDecoderRepositoryModule,
+    DelegatesV2RepositoryModule,
+    EarnRepositoryModule,
     GPv2DecoderModule,
+<<<<<<< HEAD
     KilnNativeStakingHelperModule,
+=======
+    HumanDescriptionRepositoryModule,
+    KilnNativeStakingHelperModule,
+    KilnVaultHelperModule,
+    LiFiHelperModule,
+    LiFiDecoderModule,
+    SafeAppsRepositoryModule,
+    SafeRepositoryModule,
+>>>>>>> origin/staging
     StakingRepositoryModule,
     SwapAppsHelperModule,
-    SwapOrderMapperModule,
     SwapOrderHelperModule,
+    SwapOrderMapperModule,
     SwapsRepositoryModule,
     TokenRepositoryModule,
-    TwapOrderMapperModule,
     TwapOrderHelperModule,
+    TwapOrderMapperModule,
   ],
   providers: [
+    BridgeTransactionMapper,
     CreationTransactionMapper,
     CustomTransactionMapper,
     DataDecodedParamHelper,
     Erc20TransferMapper,
     Erc721TransferMapper,
     GPv2OrderHelper,
-    TransferMapper,
+    HumanDescriptionMapper,
     ModuleTransactionDetailsMapper,
     ModuleTransactionMapper,
     ModuleTransactionStatusMapper,
@@ -85,6 +116,7 @@ import { Module } from '@nestjs/common';
     MultisigTransactionExecutionInfoMapper,
     MultisigTransactionInfoMapper,
     MultisigTransactionMapper,
+    MultisigTransactionNoteMapper,
     MultisigTransactionStatusMapper,
     NativeCoinTransferMapper,
     NativeStakingMapper,
@@ -96,10 +128,12 @@ import { Module } from '@nestjs/common';
     TransactionPreviewMapper,
     TransactionsHistoryMapper,
     TransactionsService,
+    TransactionVerifierHelper,
     TransferDetailsMapper,
-    TransferInfoMapper,
     TransferImitationMapper,
-    HumanDescriptionMapper,
+    TransferInfoMapper,
+    TransferMapper,
+    VaultTransactionMapper,
   ],
 })
 export class TransactionsModule {}

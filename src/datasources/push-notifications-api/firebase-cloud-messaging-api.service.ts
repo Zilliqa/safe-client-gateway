@@ -4,23 +4,43 @@ import {
   CacheService,
   ICacheService,
 } from '@/datasources/cache/cache.service.interface';
-import { HttpErrorFactory } from '@/datasources/errors/http-error-factory';
 import {
   NetworkService,
   INetworkService,
 } from '@/datasources/network/network.service.interface';
 import { IPushNotificationsApi } from '@/domain/interfaces/push-notifications-api.interface';
 import { Inject, Injectable } from '@nestjs/common';
-import { FirebaseNotification } from '@/datasources/push-notifications-api/entities/firebase-notification.entity';
+import {
+  FirebaseAndroidMessageConfig,
+  FireabaseNotificationApn,
+  FirebaseNotification,
+  NotificationContent,
+} from '@/datasources/push-notifications-api/entities/firebase-notification.entity';
 import { IJwtService } from '@/datasources/jwt/jwt.service.interface';
+import {
+  FirebaseOauth2Token,
+  FirebaseOauth2TokenSchema,
+} from '@/datasources/push-notifications-api/entities/firebase-oauth2-token.entity';
+import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
+import { getFirstAvailable } from '@/domain/common/utils/array';
 
 @Injectable()
 export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
   private static readonly OAuth2TokenUrl =
     'https://oauth2.googleapis.com/token';
-  private static readonly OAuth2TokenTtlBufferInSeconds = 5;
   private static readonly Scope =
     'https://www.googleapis.com/auth/firebase.messaging';
+
+  private static readonly DefaultIosNotificationTitle = 'New Activity';
+  private static readonly DefaultIosNotificationBody =
+    'New Activity with your Safe';
+
+  private static readonly ERROR_ARRAY_PATH = [
+    'data.error_description',
+    'data.error.message',
+  ];
+
+  private static OAuth2TokenTtlBufferInSeconds: number;
 
   private readonly baseUrl: string;
   private readonly project: string;
@@ -36,7 +56,6 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
     private readonly cacheService: ICacheService,
     @Inject(IJwtService)
     private readonly jwtService: IJwtService,
-    private readonly httpErrorFactory: HttpErrorFactory,
   ) {
     this.baseUrl = this.configurationService.getOrThrow<string>(
       'pushNotifications.baseUri',
@@ -51,6 +70,54 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
     this.privateKey = this.configurationService.getOrThrow<string>(
       'pushNotifications.serviceAccount.privateKey',
     );
+    FirebaseCloudMessagingApiService.OAuth2TokenTtlBufferInSeconds =
+      this.configurationService.getOrThrow<number>(
+        'pushNotifications.oauth2TokenTtlBufferInSeconds',
+      );
+  }
+
+  /**
+   * Returns the notification data for iOS devices.
+   *
+   * On iOS, a title and body are required for a notification to be displayed.
+   * The `mutable-content` field is set to `1` to allow the notification to be modified by the app.
+   *      This ensures an appropriate title and body are displayed to the user.
+   *
+   * @param {NotificationContent} notification - notification payload
+   *
+   * @returns {FireabaseNotificationApn} - iOS notification data
+   **/
+  private getIosNotificationData(
+    notification?: NotificationContent,
+  ): FireabaseNotificationApn {
+    return {
+      apns: {
+        payload: {
+          aps: {
+            alert: {
+              title:
+                notification?.title ??
+                FirebaseCloudMessagingApiService.DefaultIosNotificationTitle,
+              body:
+                notification?.body ??
+                FirebaseCloudMessagingApiService.DefaultIosNotificationBody,
+            },
+            'mutable-content': 1,
+          },
+        },
+      },
+    };
+  }
+
+  /**
+   * Returns the Android message config for the notification.
+   *
+   * @returns {FirebaseAndroidMessageConfig} - Android message config
+   **/
+  private getAndroidMessageConfig(): FirebaseAndroidMessageConfig {
+    return {
+      android: { priority: 'high' },
+    };
   }
 
   /**
@@ -71,7 +138,9 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
         data: {
           message: {
             token: fcmToken,
-            notification,
+            ...notification,
+            ...this.getIosNotificationData(notification.notification),
+            ...this.getAndroidMessageConfig(),
           },
         },
         networkRequest: {
@@ -82,12 +151,11 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
       });
     } catch (error) {
       /**
-       * TODO: Error handling based on `error.details[i].reason`, e.g.
-       * - expired OAuth2 token
-       * - stale FCM token
-       * - don't expose the error to clients, logging on domain level
+       * @todo Handle error properly
+       *
+       * We should consider NotificationRespository when handling errors because the logic is parially handled there.
        */
-      throw this.httpErrorFactory.from(error);
+      throw this.mapError(error);
     }
   }
 
@@ -105,17 +173,15 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
       return cachedToken;
     }
 
-    const { data } = await this.networkService.post<{
-      access_token: string;
-      expires_in: number;
-      token_type: string;
-    }>({
-      url: FirebaseCloudMessagingApiService.OAuth2TokenUrl,
-      data: {
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: this.getAssertion(),
-      },
-    });
+    const data = await this.networkService
+      .post<FirebaseOauth2Token>({
+        url: FirebaseCloudMessagingApiService.OAuth2TokenUrl,
+        data: {
+          grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+          assertion: this.getAssertion(),
+        },
+      })
+      .then((response) => FirebaseOauth2TokenSchema.parse(response.data));
 
     // Token cached according to issuance
     await this.cacheService.hSet(
@@ -124,6 +190,7 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
       // Buffer ensures token is not cached beyond expiration if caching took time
       data.expires_in -
         FirebaseCloudMessagingApiService.OAuth2TokenTtlBufferInSeconds,
+      0,
     );
 
     return data.access_token;
@@ -138,7 +205,6 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
     const now = new Date();
 
     const payload = {
-      alg: 'RS256',
       iss: this.clientEmail,
       scope: FirebaseCloudMessagingApiService.Scope,
       aud: FirebaseCloudMessagingApiService.OAuth2TokenUrl,
@@ -149,6 +215,22 @@ export class FirebaseCloudMessagingApiService implements IPushNotificationsApi {
 
     return this.jwtService.sign(payload, {
       secretOrPrivateKey: this.privateKey,
+      algorithm: 'RS256',
     });
+  }
+
+  private mapError(error: unknown): unknown {
+    if (error instanceof NetworkResponseError) {
+      const errorMessage = getFirstAvailable(
+        error,
+        FirebaseCloudMessagingApiService.ERROR_ARRAY_PATH,
+      );
+
+      if (errorMessage) {
+        return new Error(errorMessage);
+      }
+    }
+
+    return error;
   }
 }

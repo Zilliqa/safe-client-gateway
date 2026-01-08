@@ -21,8 +21,9 @@ export const Erc20BalanceSchema = z.object({
   balance: z.string(),
 });
 
-const FiatSchema = z.object({
+export const FiatSchema = z.object({
   fiatBalance: z.string().nullish().default(null),
+  fiatBalance24hChange: z.coerce.string().nullish().default(null),
   fiatConversion: z.string().nullish().default(null),
 });
 
@@ -30,3 +31,5 @@ export const BalanceSchema = z.union([
   NativeBalanceSchema.merge(FiatSchema),
   Erc20BalanceSchema.merge(FiatSchema),
 ]);
+
+export const BalancesSchema = z.array(BalanceSchema);

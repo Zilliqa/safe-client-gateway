@@ -1,5 +1,5 @@
 import { Controller, Post, Param, Get, UseFilters, Body } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { RelayDto } from '@/routes/relay/entities/relay.dto.entity';
 import { RelayService } from '@/routes/relay/relay.service';
 import { RelayLimitReachedExceptionFilter } from '@/domain/relay/exception-filters/relay-limit-reached.exception-filter';
@@ -11,6 +11,8 @@ import { UnofficialMultiSendExceptionFilter } from '@/domain/relay/exception-fil
 import { UnofficialProxyFactoryExceptionFilter } from '@/domain/relay/exception-filters/unofficial-proxy-factory.exception-filter';
 import { RelayDtoSchema } from '@/routes/relay/entities/schemas/relay.dto.schema';
 import { AddressSchema } from '@/validation/entities/schemas/address.schema';
+import { Relay } from '@/routes/relay/entities/relay.entity';
+import { RelaysRemaining } from '@/routes/relay/entities/relays-remaining.entity';
 
 @ApiTags('relay')
 @Controller({
@@ -29,23 +31,22 @@ export class RelayController {
     UnofficialMultiSendExceptionFilter,
     UnofficialProxyFactoryExceptionFilter,
   )
+  @ApiOkResponse({ type: Relay })
   async relay(
     @Param('chainId') chainId: string,
     @Body(new ValidationPipe(RelayDtoSchema))
     relayDto: RelayDto,
-  ): Promise<{ taskId: string }> {
+  ): Promise<Relay> {
     return this.relayService.relay({ chainId, relayDto });
   }
 
+  @ApiOkResponse({ type: RelaysRemaining })
   @Get(':safeAddress')
   async getRelaysRemaining(
     @Param('chainId') chainId: string,
     @Param('safeAddress', new ValidationPipe(AddressSchema))
     safeAddress: `0x${string}`,
-  ): Promise<{
-    remaining: number;
-    limit: number;
-  }> {
+  ): Promise<RelaysRemaining> {
     return this.relayService.getRelaysRemaining({ chainId, safeAddress });
   }
 }

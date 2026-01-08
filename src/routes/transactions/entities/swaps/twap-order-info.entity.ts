@@ -12,6 +12,7 @@ import {
   ApiExtraModels,
   ApiProperty,
   ApiPropertyOptional,
+  getSchemaPath,
 } from '@nestjs/swagger';
 
 export enum DurationType {
@@ -24,13 +25,43 @@ export enum StartTimeValue {
   AtEpoch = 'AT_EPOCH',
 }
 
-export type DurationOfPart =
-  | { durationType: DurationType.Auto }
-  | { durationType: DurationType.LimitDuration; duration: string };
+type DurationOfPart = DurationAuto | DurationLimit;
 
-export type StartTime =
-  | { startType: StartTimeValue.AtMiningTime }
-  | { startType: StartTimeValue.AtEpoch; epoch: number };
+export class DurationAuto {
+  @ApiProperty({ enum: [DurationType.Auto] })
+  durationType = DurationType.Auto;
+}
+
+export class DurationLimit {
+  @ApiProperty({ enum: [DurationType.LimitDuration] })
+  durationType = DurationType.LimitDuration;
+
+  @ApiProperty()
+  duration: string;
+
+  constructor(duration: string) {
+    this.duration = duration;
+  }
+}
+
+type StartTime = StartTimeAtMining | StartTimeAtEpoch;
+
+export class StartTimeAtMining {
+  @ApiProperty({ enum: [StartTimeValue.AtMiningTime] })
+  startType = StartTimeValue.AtMiningTime;
+}
+
+export class StartTimeAtEpoch {
+  @ApiProperty({ enum: [StartTimeValue.AtEpoch] })
+  startType = StartTimeValue.AtEpoch;
+
+  @ApiProperty()
+  epoch: number;
+
+  constructor(epoch: number) {
+    this.epoch = epoch;
+  }
+}
 
 export type TwapOrderInfo = {
   status: OrderStatus;
@@ -41,8 +72,11 @@ export type TwapOrderInfo = {
   sellAmount: string;
   buyAmount: string;
   executedSellAmount: string | null;
+  // Nullable as TWAP may have too many parts, or is being previewed
   executedBuyAmount: string | null;
-  executedSurplusFee: string | null;
+  // Nullable as TWAP may have too many parts, or is being previewed
+  executedFee: string | null;
+  executedFeeToken: TokenInfo;
   sellToken: TokenInfo;
   buyToken: TokenInfo;
   receiver: `0x${string}`;
@@ -55,7 +89,13 @@ export type TwapOrderInfo = {
   startTime: StartTime;
 };
 
-@ApiExtraModels(TokenInfo)
+@ApiExtraModels(
+  TokenInfo,
+  DurationAuto,
+  DurationLimit,
+  StartTimeAtMining,
+  StartTimeAtEpoch,
+)
 export class TwapOrderTransactionInfo
   extends TransactionInfo
   implements TwapOrderInfo
@@ -113,11 +153,22 @@ export class TwapOrderTransactionInfo
 
   @ApiPropertyOptional({
     type: String,
+<<<<<<< HEAD
+=======
+    // Nullable as TWAP may have too many parts, or is being previewed
+>>>>>>> origin/staging
     nullable: true,
     description:
       'The executed surplus fee raw amount (no decimals), or null if there are too many parts',
   })
-  executedSurplusFee: string | null;
+  executedFee: string | null;
+
+  @ApiProperty({
+    type: String,
+    description:
+      'The token in which the fee was paid, expressed by SURPLUS tokens (BUY tokens for SELL orders and SELL tokens for BUY orders).',
+  })
+  executedFeeToken: TokenInfo;
 
   @ApiProperty({ description: 'The sell token of the TWAP' })
   sellToken: TokenInfo;
@@ -164,11 +215,19 @@ export class TwapOrderTransactionInfo
 
   @ApiProperty({
     description: 'Whether the TWAP is valid for the entire interval or not',
+    oneOf: [
+      { $ref: getSchemaPath(DurationAuto) },
+      { $ref: getSchemaPath(DurationLimit) },
+    ],
   })
   durationOfPart: DurationOfPart;
 
   @ApiProperty({
     description: 'The start time of the TWAP',
+    oneOf: [
+      { $ref: getSchemaPath(StartTimeAtMining) },
+      { $ref: getSchemaPath(StartTimeAtEpoch) },
+    ],
   })
   startTime: StartTime;
 
@@ -182,7 +241,8 @@ export class TwapOrderTransactionInfo
     buyAmount: string;
     executedSellAmount: string | null;
     executedBuyAmount: string | null;
-    executedSurplusFee: string | null;
+    executedFee: string | null;
+    executedFeeToken: TokenInfo;
     sellToken: TokenInfo;
     buyToken: TokenInfo;
     receiver: `0x${string}`;
@@ -195,7 +255,7 @@ export class TwapOrderTransactionInfo
     durationOfPart: DurationOfPart;
     startTime: StartTime;
   }) {
-    super(TransactionInfoType.SwapOrder, null, null);
+    super(TransactionInfoType.SwapOrder, null);
     this.status = args.status;
     this.kind = args.kind;
     this.class = args.class;
@@ -205,7 +265,8 @@ export class TwapOrderTransactionInfo
     this.buyAmount = args.buyAmount;
     this.executedSellAmount = args.executedSellAmount;
     this.executedBuyAmount = args.executedBuyAmount;
-    this.executedSurplusFee = args.executedSurplusFee;
+    this.executedFee = args.executedFee;
+    this.executedFeeToken = args.executedFeeToken;
     this.sellToken = args.sellToken;
     this.buyToken = args.buyToken;
     this.receiver = args.receiver;

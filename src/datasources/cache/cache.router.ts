@@ -8,12 +8,17 @@ export class CacheRouter {
   private static readonly ALL_TRANSACTIONS_KEY = 'all_transactions';
   private static readonly AUTH_NONCE_KEY = 'auth_nonce';
   private static readonly BACKBONE_KEY = 'backbone';
+  private static readonly BRIDGE_CHAINS_KEY = 'bridge_chains';
   private static readonly CHAIN_KEY = 'chain';
   private static readonly CHAINS_KEY = 'chains';
   private static readonly CONTRACT_KEY = 'contract';
+  private static readonly TRUSTED_FOR_DELEGATE_CALL_CONTRACTS_KEY =
+    'trusted_contracts';
   private static readonly COUNTERFACTUAL_SAFE_KEY = 'counterfactual_safe';
   private static readonly COUNTERFACTUAL_SAFES_KEY = 'counterfactual_safes';
   private static readonly CREATION_TRANSACTION_KEY = 'creation_transaction';
+  private static readonly DECODED_DATA_KEY = 'decoded_data';
+  private static readonly DECODED_DATA_CONTRACTS_KEY = 'decoded_data_contracts';
   private static readonly DELEGATES_KEY = 'delegates';
   private static readonly FIREBASE_OAUTH2_TOKEN_KEY = 'firebase_oauth2_token';
   private static readonly INCOMING_TRANSFERS_KEY = 'incoming_transfers';
@@ -40,13 +45,22 @@ export class CacheRouter {
     'staking_dedicated_staking_stats';
   private static readonly STAKING_DEFI_VAULT_STATS_KEY =
     'staking_defi_vault_stats';
+  private static readonly STAKING_DEFI_VAULT_STAKES_KEY =
+    'staking_defi_vault_stakes';
+  private static readonly STAKING_DEFI_MORPHO_EXTRA_REWARDS_KEY =
+    'staking_defi_morpho_extra_rewards';
   private static readonly STAKING_DEPLOYMENTS_KEY = 'staking_deployments';
+  private static readonly STAKING_REWARDS_FEE_KEY = 'staking_rewards_fee';
   private static readonly STAKING_NETWORK_STATS_KEY = 'staking_network_stats';
   private static readonly STAKING_POOLED_STAKING_STATS_KEY =
     'staking_pooled_staking_stats';
   private static readonly STAKING_STAKES_KEY = 'staking_stakes';
   private static readonly STAKING_TRANSACTION_STATUS_KEY =
     'staking_transaction_status';
+  private static readonly TARGETED_MESSAGING_OUTREACHES =
+    'targeted_messaging_outreaches';
+  private static readonly TARGETED_MESSAGING_OUTREACH_FILE_PROCESSOR_LOCK =
+    'targeted_messaging_outreach_file_processor_lock';
   private static readonly TARGETED_MESSAGING_SUBMISSION_KEY =
     'targeted_messaging_submission';
   private static readonly TARGETED_MESSAGING_TARGETED_SAFE_KEY =
@@ -59,6 +73,9 @@ export class CacheRouter {
   private static readonly UNSUPPORTED_CHAIN_EVENT = 'unsupported_chain_event';
   private static readonly ZERION_BALANCES_KEY = 'zerion_balances';
   private static readonly ZERION_COLLECTIBLES_KEY = 'zerion_collectibles';
+  private static readonly ZERION_POSITIONS_KEY = 'zerion_positions';
+  private static readonly ORM_QUERY_CACHE_KEY = 'orm_query_cache';
+  private static readonly TRANSACTIONS_EXPORT_KEY = 'transactions_export';
 
   static getAuthNonceCacheKey(nonce: string): string {
     return `${CacheRouter.AUTH_NONCE_KEY}_${nonce}`;
@@ -66,6 +83,10 @@ export class CacheRouter {
 
   static getAuthNonceCacheDir(nonce: string): CacheDir {
     return new CacheDir(CacheRouter.getAuthNonceCacheKey(nonce), '');
+  }
+
+  static getBridgeChainsCacheDir(): CacheDir {
+    return new CacheDir(CacheRouter.BRIDGE_CHAINS_KEY, '');
   }
 
   static getBalancesCacheKey(args: {
@@ -124,6 +145,24 @@ export class CacheRouter {
     );
   }
 
+  static getZerionPositionsCacheKey(args: {
+    chainId: string;
+    safeAddress: `0x${string}`;
+  }): string {
+    return `${args.chainId}_${CacheRouter.ZERION_POSITIONS_KEY}_${args.safeAddress}`;
+  }
+
+  static getZerionPositionsCacheDir(args: {
+    chainId: string;
+    safeAddress: `0x${string}`;
+    fiatCode: string;
+  }): CacheDir {
+    return new CacheDir(
+      CacheRouter.getZerionPositionsCacheKey(args),
+      args.fiatCode,
+    );
+  }
+
   static getRateLimitCacheKey(prefix: string): string {
     return `${prefix}_${CacheRouter.RATE_LIMIT_KEY}`;
   }
@@ -166,6 +205,17 @@ export class CacheRouter {
     );
   }
 
+  static getTrustedForDelegateCallContractsCacheKey(chainId: string): string {
+    return `${chainId}_${CacheRouter.TRUSTED_FOR_DELEGATE_CALL_CONTRACTS_KEY}`;
+  }
+
+  static getTrustedForDelegateCallContractsCacheDir(chainId: string): CacheDir {
+    return new CacheDir(
+      CacheRouter.getTrustedForDelegateCallContractsCacheKey(chainId),
+      '',
+    );
+  }
+
   static getBackboneCacheDir(chainId: string): CacheDir {
     return new CacheDir(`${chainId}_${CacheRouter.BACKBONE_KEY}`, '');
   }
@@ -195,6 +245,13 @@ export class CacheRouter {
     return `${args.chainId}_${CacheRouter.SAFE_COLLECTIBLES_KEY}_${args.safeAddress}`;
   }
 
+  static getDelegatesCacheKey(args: {
+    chainId: string;
+    safeAddress?: `0x${string}`;
+  }): string {
+    return `${args.chainId}_${CacheRouter.DELEGATES_KEY}_${args.safeAddress}`;
+  }
+
   static getDelegatesCacheDir(args: {
     chainId: string;
     safeAddress?: `0x${string}`;
@@ -205,7 +262,7 @@ export class CacheRouter {
     offset?: number;
   }): CacheDir {
     return new CacheDir(
-      `${args.chainId}_${CacheRouter.DELEGATES_KEY}_${args.safeAddress}`,
+      CacheRouter.getDelegatesCacheKey(args),
       `${args.delegate}_${args.delegator}_${args.label}_${args.limit}_${args.offset}`,
     );
   }
@@ -355,6 +412,43 @@ export class CacheRouter {
     return new CacheDir(
       `${args.chainId}_${CacheRouter.CREATION_TRANSACTION_KEY}_${args.safeAddress}`,
       '',
+    );
+  }
+
+  static getDecodedDataCacheKey(args: {
+    chainId: string;
+    data: `0x${string}`;
+    to: `0x${string}`;
+  }): string {
+    return `${args.chainId}_${CacheRouter.DECODED_DATA_KEY}_${args.data}_${args.to}`;
+  }
+
+  static getDecodedDataCacheDir(args: {
+    chainId: string;
+    data: `0x${string}`;
+    to: `0x${string}`;
+  }): CacheDir {
+    return new CacheDir(CacheRouter.getDecodedDataCacheKey(args), '');
+  }
+
+  static getDecodedDataContractsCacheKey(args: {
+    chainIds: Array<string>;
+    address: `0x${string}`;
+    limit?: number;
+    offset?: number;
+  }): string {
+    return `${args.chainIds.sort().join('_')}_${CacheRouter.DECODED_DATA_CONTRACTS_KEY}_${args.address}`;
+  }
+
+  static getDecodedDataContractsCacheDir(args: {
+    chainIds: Array<string>;
+    address: `0x${string}`;
+    limit?: number;
+    offset?: number;
+  }): CacheDir {
+    return new CacheDir(
+      CacheRouter.getDecodedDataContractsCacheKey(args),
+      `${args.limit}_${args.offset}`,
     );
   }
 
@@ -572,29 +666,76 @@ export class CacheRouter {
     );
   }
 
-  static getStakingDeploymentsCacheDir(): CacheDir {
-    return new CacheDir(this.STAKING_DEPLOYMENTS_KEY, '');
+  static getStakingDeploymentsCacheDir(
+    cacheType: 'earn' | 'staking',
+  ): CacheDir {
+    return new CacheDir(this.STAKING_DEPLOYMENTS_KEY, cacheType);
   }
 
-  static getStakingNetworkStatsCacheDir(): CacheDir {
-    return new CacheDir(this.STAKING_NETWORK_STATS_KEY, '');
+  static getStakingRewardsFeeCacheDir(args: {
+    cacheType: 'earn' | 'staking';
+    chainId: string;
+    contract: `0x${string}`;
+  }): CacheDir {
+    return new CacheDir(
+      `${args.chainId}_${this.STAKING_REWARDS_FEE_KEY}_${args.contract}`,
+      args.cacheType,
+    );
   }
 
-  static getStakingDedicatedStakingStatsCacheDir(): CacheDir {
-    return new CacheDir(this.STAKING_DEDICATED_STAKING_STATS_KEY, '');
+  static getStakingNetworkStatsCacheDir(
+    cacheType: 'earn' | 'staking',
+  ): CacheDir {
+    return new CacheDir(this.STAKING_NETWORK_STATS_KEY, cacheType);
   }
 
-  static getStakingPooledStakingStatsCacheDir(pool: `0x${string}`): CacheDir {
-    return new CacheDir(`${this.STAKING_POOLED_STAKING_STATS_KEY}_${pool}`, '');
+  static getStakingDedicatedStakingStatsCacheDir(
+    cacheType: 'earn' | 'staking',
+  ): CacheDir {
+    return new CacheDir(this.STAKING_DEDICATED_STAKING_STATS_KEY, cacheType);
+  }
+
+  static getStakingPooledStakingStatsCacheDir(args: {
+    cacheType: 'earn' | 'staking';
+    pool: `0x${string}`;
+  }): CacheDir {
+    return new CacheDir(
+      `${this.STAKING_POOLED_STAKING_STATS_KEY}_${args.pool}`,
+      args.cacheType,
+    );
   }
 
   static getStakingDefiVaultStatsCacheDir(args: {
+    cacheType: 'earn' | 'staking';
     chainId: string;
     vault: `0x${string}`;
   }): CacheDir {
     return new CacheDir(
       `${args.chainId}_${this.STAKING_DEFI_VAULT_STATS_KEY}_${args.vault}`,
-      '',
+      args.cacheType,
+    );
+  }
+
+  static getStakingDefiVaultStakesCacheDir(args: {
+    cacheType: 'earn' | 'staking';
+    chainId: string;
+    safeAddress: `0x${string}`;
+    vault: `0x${string}`;
+  }): CacheDir {
+    return new CacheDir(
+      `${args.chainId}_${this.STAKING_DEFI_VAULT_STAKES_KEY}_${args.safeAddress}_${args.vault}`,
+      args.cacheType,
+    );
+  }
+
+  static getStakingDefiMorphoExtraRewardsCacheDir(args: {
+    cacheType: 'earn' | 'staking';
+    chainId: string;
+    safeAddress: `0x${string}`;
+  }): CacheDir {
+    return new CacheDir(
+      `${args.chainId}_${this.STAKING_DEFI_MORPHO_EXTRA_REWARDS_KEY}_${args.safeAddress}`,
+      args.cacheType,
     );
   }
 
@@ -619,12 +760,14 @@ export class CacheRouter {
    * cache field short and deterministic. Redis and other cache systems
    * may experience performance degradation with long fields.
    *
+   * @param {string} args.cacheType - Cache type (earn or staking)
    * @param {string} args.chainId - Chain ID
    * @param {string} args.safeAddress - Safe address
    * @param {string} args.validatorsPublicKeys - Array of validators public keys
    * @returns {@link CacheDir} - Cache directory
    */
   static getStakingStakesCacheDir(args: {
+    cacheType: 'earn' | 'staking';
     chainId: string;
     safeAddress: `0x${string}`;
     validatorsPublicKeys: Array<`0x${string}`>;
@@ -633,7 +776,7 @@ export class CacheRouter {
     hash.update(args.validatorsPublicKeys.join('_'));
     return new CacheDir(
       CacheRouter.getStakingStakesCacheKey(args),
-      hash.digest('hex'),
+      `${args.cacheType}_${hash.digest('hex')}`,
     );
   }
 
@@ -642,12 +785,13 @@ export class CacheRouter {
   }
 
   static getStakingTransactionStatusCacheDir(args: {
+    cacheType: 'earn' | 'staking';
     chainId: string;
     txHash: `0x${string}`;
   }): CacheDir {
     return new CacheDir(
       `${args.chainId}_${CacheRouter.STAKING_TRANSACTION_STATUS_KEY}_${args.txHash}`,
-      '',
+      args.cacheType,
     );
   }
 
@@ -678,5 +822,62 @@ export class CacheRouter {
       CacheRouter.getSubmissionCacheKey(args.outreachId),
       `${args.safeAddress}_${args.signerAddress}`,
     );
+  }
+
+  static getOutreachesCacheDir(): CacheDir {
+    return new CacheDir(CacheRouter.TARGETED_MESSAGING_OUTREACHES, '');
+  }
+
+  static getOutreachFileProcessorCacheKey(): string {
+    return CacheRouter.TARGETED_MESSAGING_OUTREACH_FILE_PROCESSOR_LOCK;
+  }
+
+  static getOutreachFileProcessorCacheDir(): CacheDir {
+    return new CacheDir(CacheRouter.getOutreachFileProcessorCacheKey(), '');
+  }
+
+  static getTransactionsExportCacheKey(args: {
+    chainId: string;
+    safeAddress: `0x${string}`;
+  }): string {
+    return `${args.chainId}_${CacheRouter.TRANSACTIONS_EXPORT_KEY}_${args.safeAddress}`;
+  }
+
+  static getTransactionsExportCacheDir(args: {
+    chainId: string;
+    safeAddress: `0x${string}`;
+    executionDateGte?: string;
+    executionDateLte?: string;
+    limit?: number;
+    offset?: number;
+  }): CacheDir {
+    return new CacheDir(
+      CacheRouter.getTransactionsExportCacheKey(args),
+      `${args.executionDateGte}_${args.executionDateLte}_${args.limit}_${args.offset}`,
+    );
+  }
+
+  /**
+   * Gets the in-memory cache key for the given cacheDir.
+   */
+  static getMemoryKey(cacheDir: CacheDir): string {
+    return `${cacheDir.key}:${cacheDir.field}`;
+  }
+
+  /**
+   * Gets Redis cache key for the ORM query cache.
+   *
+   * @param {string} prefix - Prefix for the cache key
+   * @param {string} chainId - Chain ID
+   * @param {string} safeAddress - Safe address
+   *
+   * @returns {string} - Cache key
+   */
+  static getOrnCacheKey(
+    prefix: string,
+    chainId: string,
+    safeAddress: `0x${string}`,
+  ): string {
+    return `${CacheRouter.ORM_QUERY_CACHE_KEY}:${prefix}:${chainId}:${safeAddress}`;
   }
 }

@@ -1,9 +1,6 @@
 import { EventCacheHelperModule } from '@/domain/hooks/helpers/event-cache.helper.module';
 import { EventNotificationsHelperModule } from '@/domain/hooks/helpers/event-notifications.helper';
-import {
-  HooksRepository,
-  HooksRepositoryWithNotifications,
-} from '@/domain/hooks/hooks.repository';
+import { HooksRepository } from '@/domain/hooks/hooks.repository';
 import { QueuesRepositoryModule } from '@/domain/queues/queues-repository.interface';
 import { Event } from '@/routes/hooks/entities/event.entity';
 import { Module } from '@nestjs/common';

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import type { IConfigurationService } from '@/config/configuration.service.interface';
+=======
+>>>>>>> origin/staging
 import { erc20TransferBuilder } from '@/domain/safe/entities/__tests__/erc20-transfer.builder';
 import { erc721TransferBuilder } from '@/domain/safe/entities/__tests__/erc721-transfer.builder';
 import { nativeTokenTransferBuilder } from '@/domain/safe/entities/__tests__/native-token-transfer.builder';
@@ -8,8 +11,15 @@ import {
   OrderKind,
   OrderStatus,
 } from '@/domain/swaps/entities/order.entity';
+<<<<<<< HEAD
 import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
 import { TokenType } from '@/domain/tokens/entities/token.entity';
+=======
+import {
+  erc20TokenBuilder,
+  erc721TokenBuilder,
+} from '@/domain/tokens/__tests__/token.builder';
+>>>>>>> origin/staging
 import type { TokenRepository } from '@/domain/tokens/token.repository';
 import type { ILoggingService } from '@/logging/logging.interface';
 import type { AddressInfoHelper } from '@/routes/common/address-info/address-info.helper';
@@ -22,16 +32,16 @@ import {
   TransferDirection,
   TransferTransactionInfo,
 } from '@/routes/transactions/entities/transfer-transaction-info.entity';
+<<<<<<< HEAD
 import { TransferType } from '@/routes/transactions/entities/transfers/transfer.entity';
+=======
+import { Erc20Transfer } from '@/routes/transactions/entities/transfers/erc20-transfer.entity';
+>>>>>>> origin/staging
 import type { SwapTransferInfoMapper } from '@/routes/transactions/mappers/transfers/swap-transfer-info.mapper';
 import { TransferInfoMapper } from '@/routes/transactions/mappers/transfers/transfer-info.mapper';
 import { TransferMapper } from '@/routes/transactions/mappers/transfers/transfer.mapper';
 import { faker } from '@faker-js/faker';
 import { getAddress } from 'viem';
-
-const configurationService = jest.mocked({
-  getOrThrow: jest.fn(),
-} as jest.MockedObjectDeep<IConfigurationService>);
 
 const addressInfoHelper = jest.mocked({
   getOrDefault: jest.fn(),
@@ -56,7 +66,6 @@ describe('Transfer mapper (Unit)', () => {
     jest.resetAllMocks();
 
     const transferInfoMapper = new TransferInfoMapper(
-      configurationService,
       tokenRepository,
       swapTransferInfoMapper,
       addressInfoHelper,
@@ -114,7 +123,7 @@ describe('Transfer mapper (Unit)', () => {
           .with('from', safe.address)
           .build();
         const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
-        const token = tokenBuilder()
+        const token = erc721TokenBuilder()
           .with('address', getAddress(transfer.tokenAddress))
           .build();
         swapTransferInfoMapper.mapSwapTransferInfo.mockRejectedValue(
@@ -157,7 +166,7 @@ describe('Transfer mapper (Unit)', () => {
             .with('from', safe.address)
             .build();
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
-          const token = tokenBuilder()
+          const token = erc20TokenBuilder()
             .with('address', getAddress(transfer.tokenAddress))
             .with('trusted', true)
             .build();
@@ -198,7 +207,7 @@ describe('Transfer mapper (Unit)', () => {
             .with('from', safe.address)
             .build();
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
-          const token = tokenBuilder()
+          const token = erc20TokenBuilder()
             .with('address', getAddress(transfer.tokenAddress))
             .with('trusted', true)
             .build();
@@ -225,7 +234,7 @@ describe('Transfer mapper (Unit)', () => {
             .with('from', safe.address)
             .build();
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
-          const token = tokenBuilder()
+          const token = erc20TokenBuilder()
             .with('address', getAddress(transfer.tokenAddress))
             .with('trusted', true)
             .build();
@@ -276,7 +285,7 @@ describe('Transfer mapper (Unit)', () => {
             .with('from', safe.address)
             .build();
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
-          const token = tokenBuilder()
+          const token = erc20TokenBuilder()
             .with('address', getAddress(transfer.tokenAddress))
             .with('trusted', trusted)
             .build();
@@ -331,10 +340,21 @@ describe('Transfer mapper (Unit)', () => {
             from: safe.address,
           } as const;
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
+          const transferInfo = new Erc20Transfer(
+            transfer.tokenInfo.address,
+            transfer.value,
+            transfer.tokenInfo.name,
+            transfer.tokenInfo.symbol,
+            transfer.tokenInfo.logoUri,
+            transfer.tokenInfo.decimals,
+            transfer.tokenInfo.trusted,
+          );
+          const sellToken = erc20TokenBuilder().build() as TokenInfo & {
+            decimals: number;
+          };
           swapTransferInfoMapper.mapSwapTransferInfo.mockResolvedValue({
             type: TransactionInfoType.SwapTransfer,
             humanDescription: null,
-            richDecodedInfo: null,
             sender: {
               value: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
               name: 'GPv2Settlement',
@@ -347,7 +367,7 @@ describe('Transfer mapper (Unit)', () => {
               logoUri: null,
             },
             direction: TransferDirection.Incoming,
-            transferInfo: { ...transfer.tokenInfo, type: TransferType.Erc20 },
+            transferInfo,
             uid: '0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
             status: OrderStatus.Fulfilled,
             kind: OrderKind.Sell,
@@ -357,13 +377,12 @@ describe('Transfer mapper (Unit)', () => {
             buyAmount: '1608062657377840160',
             executedSellAmount: '10000000000000000000',
             executedBuyAmount: '1625650639290905524',
-            sellToken: tokenBuilder().build() as TokenInfo & {
-              decimals: number;
-            },
+            sellToken,
             buyToken: transfer.tokenInfo,
             explorerUrl:
               'https://explorer.cow.fi/orders/0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
-            executedSurplusFee: '1400734851526479789',
+            executedFee: '1400734851526479789',
+            executedFeeToken: sellToken,
             receiver: safe.address,
             owner: safe.address,
             fullAppData: {
@@ -383,7 +402,7 @@ describe('Transfer mapper (Unit)', () => {
           addressInfoHelper.getOrDefault.mockResolvedValue(addressInfo);
           tokenRepository.getToken.mockResolvedValue({
             ...transfer.tokenInfo,
-            type: TokenType.Erc20,
+            type: 'ERC20',
           });
 
           const actual = await mapper.mapTransfers({
@@ -401,7 +420,9 @@ describe('Transfer mapper (Unit)', () => {
               id: `transfer_${safe.address}_${transfer.transferId}`,
               timestamp: transfer.executionDate.getTime(),
               txStatus: TransactionStatus.Success,
-              txInfo: expect.any(TransferTransactionInfo),
+              txInfo: expect.objectContaining({
+                type: TransactionInfoType.SwapTransfer,
+              }),
               executionInfo: null,
               safeAppInfo: null,
               txHash: transfer.transactionHash,
@@ -443,10 +464,21 @@ describe('Transfer mapper (Unit)', () => {
             from: safe.address,
           } as const;
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
+          const transferInfo = new Erc20Transfer(
+            transfer.tokenInfo.address,
+            transfer.value,
+            transfer.tokenInfo.name,
+            transfer.tokenInfo.symbol,
+            transfer.tokenInfo.logoUri,
+            transfer.tokenInfo.decimals,
+            transfer.tokenInfo.trusted,
+          );
+          const sellToken = erc20TokenBuilder().build() as TokenInfo & {
+            decimals: number;
+          };
           swapTransferInfoMapper.mapSwapTransferInfo.mockResolvedValue({
             type: TransactionInfoType.SwapTransfer,
             humanDescription: null,
-            richDecodedInfo: null,
             sender: {
               value: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
               name: 'GPv2Settlement',
@@ -459,7 +491,7 @@ describe('Transfer mapper (Unit)', () => {
               logoUri: null,
             },
             direction: TransferDirection.Incoming,
-            transferInfo: { ...transfer.tokenInfo, type: TransferType.Erc20 },
+            transferInfo,
             uid: '0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
             status: OrderStatus.Fulfilled,
             kind: OrderKind.Sell,
@@ -469,13 +501,12 @@ describe('Transfer mapper (Unit)', () => {
             buyAmount: '1608062657377840160',
             executedSellAmount: '10000000000000000000',
             executedBuyAmount: '1625650639290905524',
-            sellToken: tokenBuilder().build() as TokenInfo & {
-              decimals: number;
-            },
+            sellToken,
             buyToken: transfer.tokenInfo,
             explorerUrl:
               'https://explorer.cow.fi/orders/0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
-            executedSurplusFee: '1400734851526479789',
+            executedFee: '1400734851526479789',
+            executedFeeToken: sellToken,
             receiver: safe.address,
             owner: safe.address,
             fullAppData: {
@@ -495,7 +526,7 @@ describe('Transfer mapper (Unit)', () => {
           addressInfoHelper.getOrDefault.mockResolvedValue(addressInfo);
           tokenRepository.getToken.mockResolvedValue({
             ...transfer.tokenInfo,
-            type: TokenType.Erc20,
+            type: 'ERC20',
           });
 
           const actual = await mapper.mapTransfers({
@@ -513,7 +544,9 @@ describe('Transfer mapper (Unit)', () => {
               id: `transfer_${safe.address}_${transfer.transferId}`,
               timestamp: transfer.executionDate.getTime(),
               txStatus: TransactionStatus.Success,
-              txInfo: expect.any(TransferTransactionInfo),
+              txInfo: expect.objectContaining({
+                type: TransactionInfoType.SwapTransfer,
+              }),
               executionInfo: null,
               safeAppInfo: null,
               txHash: transfer.transactionHash,
@@ -553,10 +586,21 @@ describe('Transfer mapper (Unit)', () => {
             from: safe.address,
           } as const;
           const addressInfo = new AddressInfo(faker.finance.ethereumAddress());
+          const transferInfo = new Erc20Transfer(
+            transfer.tokenInfo.address,
+            transfer.value,
+            transfer.tokenInfo.name,
+            transfer.tokenInfo.symbol,
+            transfer.tokenInfo.logoUri,
+            transfer.tokenInfo.decimals,
+            transfer.tokenInfo.trusted,
+          );
+          const sellToken = erc20TokenBuilder().build() as TokenInfo & {
+            decimals: number;
+          };
           swapTransferInfoMapper.mapSwapTransferInfo.mockResolvedValue({
             type: TransactionInfoType.SwapTransfer,
             humanDescription: null,
-            richDecodedInfo: null,
             sender: {
               value: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
               name: 'GPv2Settlement',
@@ -569,7 +613,7 @@ describe('Transfer mapper (Unit)', () => {
               logoUri: null,
             },
             direction: TransferDirection.Incoming,
-            transferInfo: { ...transfer.tokenInfo, type: TransferType.Erc20 },
+            transferInfo,
             uid: '0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
             status: OrderStatus.Fulfilled,
             kind: OrderKind.Sell,
@@ -579,13 +623,12 @@ describe('Transfer mapper (Unit)', () => {
             buyAmount: '1608062657377840160',
             executedSellAmount: '10000000000000000000',
             executedBuyAmount: '1625650639290905524',
-            sellToken: tokenBuilder().build() as TokenInfo & {
-              decimals: number;
-            },
+            sellToken,
             buyToken: transfer.tokenInfo,
             explorerUrl:
               'https://explorer.cow.fi/orders/0xf48010ff178567a04cb9e82341325d2bdcbf646b4ed54ef0305163368819f4bd2a73e61bd15b25b6958b4da3bfc759ca4db249b96686709e',
-            executedSurplusFee: '1400734851526479789',
+            executedFee: '1400734851526479789',
+            executedFeeToken: sellToken,
             receiver: safe.address,
             owner: safe.address,
             fullAppData: {
@@ -605,7 +648,7 @@ describe('Transfer mapper (Unit)', () => {
           addressInfoHelper.getOrDefault.mockResolvedValue(addressInfo);
           tokenRepository.getToken.mockResolvedValue({
             ...transfer.tokenInfo,
-            type: TokenType.Erc20,
+            type: 'ERC20',
           });
 
           const actual = await mapper.mapTransfers({
@@ -630,14 +673,14 @@ describe('Transfer mapper (Unit)', () => {
       const erc721Transfer = erc721TransferBuilder()
         .with('from', safe.address)
         .build();
-      const erc721Token = tokenBuilder()
+      const erc721Token = erc721TokenBuilder()
         .with('address', getAddress(erc721Transfer.tokenAddress))
         .build();
       const trustedErc20TransferWithValue = erc20TransferBuilder()
         .with('value', '1')
         .with('from', safe.address)
         .build();
-      const trustedErc20Token = tokenBuilder()
+      const trustedErc20Token = erc20TokenBuilder()
         .with('address', getAddress(trustedErc20TransferWithValue.tokenAddress))
         .with('trusted', true)
         .build();
@@ -649,7 +692,7 @@ describe('Transfer mapper (Unit)', () => {
         .with('value', '1')
         .with('from', safe.address)
         .build();
-      const untrustedErc20Token = tokenBuilder()
+      const untrustedErc20Token = erc20TokenBuilder()
         .with('address', getAddress(trustedErc20TransferWithValue.tokenAddress))
         .with('trusted', false)
         .build();

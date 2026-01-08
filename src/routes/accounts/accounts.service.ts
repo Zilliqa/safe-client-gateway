@@ -25,7 +25,11 @@ export class AccountsService {
   }): Promise<Account> {
     const domainAccount = await this.accountsRepository.createAccount({
       authPayload: args.authPayload,
+<<<<<<< HEAD
       address: args.createAccountDto.address,
+=======
+      createAccountDto: args.createAccountDto,
+>>>>>>> origin/staging
       clientIp: args.clientIp,
     });
     return this.mapAccount(domainAccount);
@@ -52,7 +56,7 @@ export class AccountsService {
     });
   }
 
-  async getDataTypes(): Promise<AccountDataType[]> {
+  async getDataTypes(): Promise<Array<AccountDataType>> {
     const domainDataTypes = await this.accountsRepository.getDataTypes();
     return domainDataTypes.map((domainDataType) =>
       this.mapDataType(domainDataType),
@@ -62,7 +66,7 @@ export class AccountsService {
   async getAccountDataSettings(args: {
     authPayload: AuthPayload;
     address: `0x${string}`;
-  }): Promise<AccountDataSetting[]> {
+  }): Promise<Array<AccountDataSetting>> {
     const [domainAccountDataSettings, dataTypes] = await Promise.all([
       this.accountsRepository.getAccountDataSettings({
         authPayload: args.authPayload,
@@ -80,7 +84,7 @@ export class AccountsService {
     authPayload: AuthPayload;
     address: `0x${string}`;
     upsertAccountDataSettingsDto: UpsertAccountDataSettingsDto;
-  }): Promise<AccountDataSetting[]> {
+  }): Promise<Array<AccountDataSetting>> {
     const [domainAccountDataSettings, dataTypes] = await Promise.all([
       this.accountsRepository.upsertAccountDataSettings({
         authPayload: args.authPayload,
@@ -103,6 +107,7 @@ export class AccountsService {
       domainAccount.id.toString(),
       domainAccount.group_id?.toString() ?? null,
       domainAccount.address,
+      domainAccount.name,
     );
   }
 
@@ -116,7 +121,7 @@ export class AccountsService {
   }
 
   private mapDataSetting(
-    dataTypes: DomainAccountDataType[],
+    dataTypes: Array<DomainAccountDataType>,
     domainAccountDataSetting: DomainAccountDataSetting,
   ): AccountDataSetting {
     const dataType = dataTypes.find(

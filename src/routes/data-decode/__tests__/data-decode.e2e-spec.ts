@@ -1,26 +1,29 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import { Test } from '@nestjs/testing';
+=======
+>>>>>>> origin/staging
 import request from 'supertest';
-import { AppModule } from '@/app.module';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
+<<<<<<< HEAD
 import type { DataDecoded } from '@/domain/data-decoder/entities/data-decoded.entity';
 import { transactionDataDtoBuilder } from '@/routes/data-decode/entities/__tests__/transaction-data.dto.builder';
 import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import type { Server } from 'net';
+=======
+import type { DataDecoded } from '@/domain/data-decoder/v2/entities/data-decoded.entity';
+import { transactionDataDtoBuilder } from '@/routes/data-decode/entities/__tests__/transaction-data.dto.builder';
+import type { Server } from 'net';
+import { createBaseTestModule } from '@/__tests__/testing-module';
+>>>>>>> origin/staging
 
 describe('Data decode e2e tests', () => {
   let app: INestApplication<Server>;
   const chainId = '1'; // Mainnet
 
   beforeAll(async () => {
-    const cacheKeyPrefix = crypto.randomUUID();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule();
 
     app = await new TestAppProvider().provide(moduleRef);
     await app.init();
@@ -49,6 +52,7 @@ describe('Data decode e2e tests', () => {
         },
         { name: '_threshold', type: 'uint256', value: '1', valueDecoded: null },
       ],
+      accuracy: 'FULL_MATCH',
     };
 
     await request(app.getHttpServer())

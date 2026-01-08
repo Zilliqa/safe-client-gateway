@@ -1,11 +1,8 @@
-import { Test } from '@nestjs/testing';
-import { AppModule } from '@/app.module';
+import { createBaseTestModule } from '@/__tests__/testing-module';
 
 describe('Application bootstrap', () => {
   it('should init the app', async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    }).compile();
+    const moduleRef = await createBaseTestModule();
 
     const app = moduleRef.createNestApplication();
     await app.init();

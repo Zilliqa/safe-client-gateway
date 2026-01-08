@@ -6,7 +6,7 @@ import { ITokenRepository } from '@/domain/tokens/token.repository.interface';
 import {
   TokenPageSchema,
   TokenSchema,
-} from '@/domain/tokens/entities/schemas/token.schema';
+} from '@/domain/tokens/entities/token.entity';
 
 @Injectable()
 export class TokenRepository implements ITokenRepository {
@@ -15,7 +15,10 @@ export class TokenRepository implements ITokenRepository {
     private readonly transactionApiManager: ITransactionApiManager,
   ) {}
 
-  async getToken(args: { chainId: string; address: string }): Promise<Token> {
+  async getToken(args: {
+    chainId: string;
+    address: `0x${string}`;
+  }): Promise<Token> {
     const transactionService = await this.transactionApiManager.getApi(
       args.chainId,
     );

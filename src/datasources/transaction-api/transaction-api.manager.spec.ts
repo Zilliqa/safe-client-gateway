@@ -7,6 +7,7 @@ import { TransactionApiManager } from '@/datasources/transaction-api/transaction
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import type { IConfigApi } from '@/domain/interfaces/config-api.interface';
 import type { ILoggingService } from '@/logging/logging.interface';
+import { rawify } from '@/validation/entities/raw.entity';
 import { faker } from '@faker-js/faker';
 
 const configurationService = {
@@ -74,10 +75,12 @@ describe('Transaction API Manager Tests', () => {
       else if (key === 'expirationTimeInSeconds.notFound.token')
         return notFoundExpireTimeSeconds;
       else if (key === 'owners.ownersTtlSeconds') return ownersTtlSeconds;
+      // TODO: Remove after Vault decoding has been released
+      else if (key === 'application.isProduction') return true;
 
       throw new Error(`Unexpected key: ${key}`);
     });
-    configApiMock.getChain.mockResolvedValue(chain);
+    configApiMock.getChain.mockResolvedValue(rawify(chain));
     const target = new TransactionApiManager(
       configurationServiceMock,
       configApiMock,

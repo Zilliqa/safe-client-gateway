@@ -1,21 +1,24 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+=======
+>>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-import { AppModule } from '@/app.module';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import configuration from '@/config/entities/__tests__/configuration';
+<<<<<<< HEAD
 import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
 import { CacheModule } from '@/datasources/cache/cache.module';
 import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
 import { NetworkModule } from '@/datasources/network/network.module';
+=======
+>>>>>>> origin/staging
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
 import { NULL_ADDRESS } from '@/routes/common/constants';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import {
@@ -28,19 +31,26 @@ import {
   zerionBalancesBuilder,
 } from '@/datasources/balances-api/entities/__tests__/zerion-balance.entity.builder';
 import { getAddress } from 'viem';
+<<<<<<< HEAD
 import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
 import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
 import type { Server } from 'net';
 import { sample } from 'lodash';
+=======
+import type { Server } from 'net';
+import sample from 'lodash/sample';
+>>>>>>> origin/staging
 import { balancesProviderBuilder } from '@/domain/chains/entities/__tests__/balances-provider.builder';
+import { rawify } from '@/validation/entities/raw.entity';
+import { createTestModule } from '@/__tests__/testing-module';
 
 describe('Balances Controller (Unit)', () => {
   let app: INestApplication<Server>;
   let safeConfigUrl: string;
   let networkService: jest.MockedObjectDeep<INetworkService>;
   let zerionBaseUri: string;
-  let zerionChainIds: string[];
-  let zerionCurrencies: string[];
+  let zerionChainIds: Array<string>;
+  let zerionCurrencies: Array<string>;
   let configurationService: jest.MockedObjectDeep<IConfigurationService>;
 
   beforeEach(async () => {
@@ -66,18 +76,7 @@ describe('Balances Controller (Unit)', () => {
       },
     });
 
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(testConfiguration)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
+    const moduleFixture = await createTestModule({ config: testConfiguration });
 
     configurationService = moduleFixture.get(IConfigurationService);
     safeConfigUrl = configurationService.getOrThrow('safeConfig.baseUri');
@@ -180,10 +179,10 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.resolve({
-                data: zerionApiBalancesResponse,
+                data: rawify(zerionApiBalancesResponse),
                 status: 200,
               });
             default:
@@ -211,6 +210,7 @@ describe('Balances Controller (Unit)', () => {
                   },
                   balance: '25000000000000000',
                   fiatBalance: '100.001',
+                  fiatBalance24hChange: null,
                   fiatConversion: '5.05',
                 },
                 {
@@ -228,6 +228,7 @@ describe('Balances Controller (Unit)', () => {
                   },
                   balance: '12000000000000000',
                   fiatBalance: '20.002',
+                  fiatBalance24hChange: null,
                   fiatConversion: '10.1',
                 },
               ],
@@ -331,10 +332,10 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.resolve({
-                data: zerionApiBalancesResponse,
+                data: rawify(zerionApiBalancesResponse),
                 status: 200,
               });
             default:
@@ -362,6 +363,7 @@ describe('Balances Controller (Unit)', () => {
                   },
                   balance: '25000000000000000',
                   fiatBalance: '100000000000000000',
+                  fiatBalance24hChange: null,
                   fiatConversion: '5.05',
                 },
                 {
@@ -379,6 +381,7 @@ describe('Balances Controller (Unit)', () => {
                   },
                   balance: '12000000000000000',
                   fiatBalance: '20000000000000000',
+                  fiatBalance24hChange: null,
                   fiatConversion: '10.1',
                 },
               ],
@@ -414,7 +417,7 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             default:
               return Promise.reject(new Error(`Could not match ${url}`));
           }
@@ -451,7 +454,7 @@ describe('Balances Controller (Unit)', () => {
               return Promise.reject(error);
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.resolve({
-                data: zerionBalancesBuilder().with('data', []).build(),
+                data: rawify(zerionBalancesBuilder().with('data', []).build()),
                 status: 200,
               });
             default:
@@ -479,7 +482,7 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.reject(new Error('test error'));
             default:
@@ -547,10 +550,10 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.resolve({
-                data: zerionApiBalancesResponse,
+                data: rawify(zerionApiBalancesResponse),
                 status: 200,
               });
             default:
@@ -619,10 +622,10 @@ describe('Balances Controller (Unit)', () => {
         networkService.get.mockImplementation(({ url }) => {
           switch (url) {
             case `${safeConfigUrl}/api/v1/chains/${chain.chainId}`:
-              return Promise.resolve({ data: chain, status: 200 });
+              return Promise.resolve({ data: rawify(chain), status: 200 });
             case `${zerionBaseUri}/v1/wallets/${safeAddress}/positions`:
               return Promise.resolve({
-                data: zerionApiBalancesResponse,
+                data: rawify(zerionApiBalancesResponse),
                 status: 200,
               });
             default:

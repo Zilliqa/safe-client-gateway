@@ -91,6 +91,7 @@ export class TwapOrderMapper {
     // to avoid requesting too many orders
     const hasAbundantParts = twapParts.length > this.maxNumberOfParts;
 
+<<<<<<< HEAD
     // Fetch all order parts if the transaction has been executed, otherwise none
     const partsToFetch = transaction.executionDate
       ? hasAbundantParts
@@ -99,6 +100,50 @@ export class TwapOrderMapper {
           twapParts.slice(-1)
         : twapParts
       : [];
+
+    const activePart = this.getActivePart({
+      twapParts,
+      executionDate: transaction.executionDate,
+    });
+
+    const activeOrderUid = activePart
+      ? this.gpv2OrderHelper.computeOrderUid({
+          chainId: chainId,
+          owner: safeAddress,
+          order: activePart,
+        })
+      : null;
+
+    const partOrders = await this.getPartOrders({
+      partsToFetch,
+      chainId,
+      safeAddress,
+    });
+
+    const status = await this.getOrderStatus({
+      chainId,
+      safeAddress,
+      twapParts,
+      partOrders,
+      activeOrderUid,
+      executionDate: transaction.executionDate,
+    });
+=======
+    let partsToFetch: Array<GPv2OrderParameters>;
+
+    // If the transaction is not executed, there are no parts to fetch
+    if (!transaction.executionDate) {
+      partsToFetch = [];
+    } else {
+      // Otherwise, fetch parts to get amounts/fees of order/token info
+      if (!hasAbundantParts) {
+        partsToFetch = twapParts;
+      } else {
+        // Can use the last part to get the amounts/fees for entire order
+        partsToFetch = twapParts.slice(-1);
+      }
+    }
+>>>>>>> origin/staging
 
     const activePart = this.getActivePart({
       twapParts,
@@ -138,10 +183,17 @@ export class TwapOrderMapper {
         ? null
         : this.getExecutedBuyAmount(partOrders).toString();
 
+<<<<<<< HEAD
     const executedSurplusFee: TwapOrderInfo['executedSurplusFee'] =
       hasAbundantParts || !partOrders
         ? null
         : this.getExecutedSurplusFee(partOrders).toString();
+=======
+    const executedFee: TwapOrderInfo['executedFee'] =
+      hasAbundantParts || !partOrders
+        ? null
+        : this.getExecutedFee(partOrders).toString();
+>>>>>>> origin/staging
 
     const [sellToken, buyToken] = await Promise.all([
       this.swapOrderHelper.getToken({
@@ -164,7 +216,17 @@ export class TwapOrderMapper {
       buyAmount: twapOrderData.buyAmount,
       executedSellAmount,
       executedBuyAmount,
-      executedSurplusFee,
+      executedFee,
+      // TODO: still tbd by CoW but this will be expressed in SURPLUS tokens
+      // (BUY tokens for SELL orders and SELL tokens for BUY orders)
+      executedFeeToken: new TokenInfo({
+        address: sellToken.address,
+        decimals: sellToken.decimals,
+        logoUri: sellToken.logoUri,
+        name: sellToken.name,
+        symbol: sellToken.symbol,
+        trusted: sellToken.trusted,
+      }),
       sellToken: new TokenInfo({
         address: sellToken.address,
         decimals: sellToken.decimals,
@@ -318,9 +380,9 @@ export class TwapOrderMapper {
     }, BigInt(0));
   }
 
-  private getExecutedSurplusFee(orders: Array<KnownOrder>): bigint {
+  private getExecutedFee(orders: Array<KnownOrder>): bigint {
     return orders.reduce((acc, order) => {
-      return acc + BigInt(order.executedSurplusFee ?? BigInt(0));
+      return acc + BigInt(order.executedFee ?? BigInt(0));
     }, BigInt(0));
   }
 }

@@ -4,5 +4,9 @@ import { Page } from '@/routes/common/entities/page.entity';
 
 export class ChainPage extends Page<Chain> {
   @ApiProperty({ type: Chain, isArray: true })
+<<<<<<< HEAD
   results!: Chain[];
+=======
+  results!: Array<Chain>;
+>>>>>>> origin/staging
 }

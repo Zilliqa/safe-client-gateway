@@ -1,35 +1,40 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { RichDecodedInfo } from '@/routes/transactions/entities/human-description.entity';
 
 export enum TransactionInfoType {
+  Bridge = 'Bridge',
   Creation = 'Creation',
   Custom = 'Custom',
-  SettingsChange = 'SettingsChange',
-  Transfer = 'Transfer',
-  SwapOrder = 'SwapOrder',
-  SwapTransfer = 'SwapTransfer',
-  TwapOrder = 'TwapOrder',
   NativeStakingDeposit = 'NativeStakingDeposit',
   NativeStakingValidatorsExit = 'NativeStakingValidatorsExit',
   NativeStakingWithdraw = 'NativeStakingWithdraw',
+  SettingsChange = 'SettingsChange',
+  Swap = 'Swap',
+  SwapAndBridge = 'SwapAndBridge',
+  SwapOrder = 'SwapOrder',
+  SwapTransfer = 'SwapTransfer',
+  Transfer = 'Transfer',
+  TwapOrder = 'TwapOrder',
+<<<<<<< HEAD
+  NativeStakingDeposit = 'NativeStakingDeposit',
+  NativeStakingValidatorsExit = 'NativeStakingValidatorsExit',
+  NativeStakingWithdraw = 'NativeStakingWithdraw',
+=======
+  VaultDeposit = 'VaultDeposit',
+  VaultRedeem = 'VaultRedeem',
+>>>>>>> origin/staging
 }
 
 export class TransactionInfo {
-  @ApiProperty()
+  @ApiProperty({ enum: TransactionInfoType })
   type: TransactionInfoType;
   @ApiPropertyOptional({ type: String, nullable: true })
   humanDescription: string | null;
-  // TODO: Remove nullable once the feature flag is removed, allow returning an empty array instead
-  @ApiPropertyOptional({ type: RichDecodedInfo, nullable: true })
-  richDecodedInfo: RichDecodedInfo | null | undefined;
 
   protected constructor(
     type: TransactionInfoType,
     humanDescription: string | null,
-    richDecodedInfo: RichDecodedInfo | null | undefined,
   ) {
     this.type = type;
     this.humanDescription = humanDescription;
-    this.richDecodedInfo = richDecodedInfo;
   }
 }

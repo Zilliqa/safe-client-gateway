@@ -1,22 +1,15 @@
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '@/app.module';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import type { Server } from 'net';
+import { createBaseTestModule } from '@/__tests__/testing-module';
 
 describe('Get health e2e test', () => {
   let app: INestApplication<Server>;
 
   beforeAll(async () => {
-    const cacheKeyPrefix = crypto.randomUUID();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule();
+
     app = await new TestAppProvider().provide(moduleRef);
     await app.init();
   });

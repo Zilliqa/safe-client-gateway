@@ -35,9 +35,10 @@ services:
       -c hba_file=/etc/pg_hba.conf
 
   rabbitmq:
-    image: rabbitmq:alpine
+    image: rabbitmq:management-alpine
     ports:
       - '5672:5672'
+      - '15672:15672'
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 15s
@@ -53,10 +54,6 @@ services:
       PRICES_PROVIDER_API_KEY: ${PRICES_PROVIDER_API_KEY-example_api_key}
       APPLICATION_PORT: ${APPLICATION_PORT-3000}
       AUTH_TOKEN: ${AUTH_TOKEN-example_auth_token}
-      ALERTS_PROVIDER_SIGNING_KEY: ${ALERTS_PROVIDER_SIGNING_KEY-example_signing_key}
-      ALERTS_PROVIDER_API_KEY: ${ALERTS_PROVIDER_API_KEY-example_api_key}
-      ALERTS_PROVIDER_ACCOUNT: ${ALERTS_PROVIDER_ACCOUNT-example_account}
-      ALERTS_PROVIDER_PROJECT: ${ALERTS_PROVIDER_PROJECT-example_project}
       EMAIL_API_APPLICATION_CODE: ${EMAIL_API_APPLICATION_CODE-example_application_code}
       EMAIL_API_FROM_EMAIL: ${EMAIL_API_FROM_EMAIL-changeme@example.com}
       EMAIL_API_KEY: ${EMAIL_API_KEY-example_api_key}
@@ -81,6 +78,17 @@ services:
       - redis
       - db
 
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - '8888:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${POSTGRES_ADMIN_USER:-admin@test.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_ADMIN_PASS:-admin}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
   nginx:
     image: nginx:1.25-alpine
     ports:
@@ -92,3 +100,6 @@ services:
       APPLICATION_PORT: ${APPLICATION_PORT-3000}
     depends_on:
       - web
+
+volumes:
+  pgadmin-data:

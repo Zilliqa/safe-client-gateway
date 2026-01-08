@@ -1,11 +1,14 @@
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
+=======
+>>>>>>> origin/staging
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-import { AppModule } from '@/app.module';
 import { IConfigurationService } from '@/config/configuration.service.interface';
+<<<<<<< HEAD
 import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
 import { CacheModule } from '@/datasources/cache/cache.module';
 import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
@@ -14,6 +17,10 @@ import type { INetworkService } from '@/datasources/network/network.service.inte
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
 import { RequestScopedLoggingModule } from '@/logging/logging.module';
+=======
+import type { INetworkService } from '@/datasources/network/network.service.interface';
+import { NetworkService } from '@/datasources/network/network.service.interface';
+>>>>>>> origin/staging
 import configuration from '@/config/entities/__tests__/configuration';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import { pageBuilder } from '@/domain/entities/__tests__/page.builder';
@@ -27,8 +34,6 @@ import type { LockingEvent } from '@/domain/community/entities/locking-event.ent
 import { getAddress } from 'viem';
 import { lockingRankBuilder } from '@/domain/community/entities/__tests__/locking-rank.builder';
 import { PaginationData } from '@/routes/common/pagination/pagination.data';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
 import {
   campaignBuilder,
   toJson as campaignToJson,
@@ -41,33 +46,38 @@ import {
   campaignActivityBuilder,
   toJson as campaignActivityToJson,
 } from '@/domain/community/entities/__tests__/campaign-activity.builder';
+import { eligibilityRequestBuilder } from '@/domain/community/entities/__tests__/eligibility-request.builder';
+import { IdentityApiModule } from '@/datasources/locking-api/identity-api.module';
+import { TestIdentityApiModule } from '@/datasources/locking-api/__tests__/test.identity-api.module';
+import { IIdentityApi } from '@/domain/interfaces/identity-api.interface';
+import { eligibilityBuilder } from '@/domain/community/entities/__tests__/eligibility.builder';
+import { rawify } from '@/validation/entities/raw.entity';
+import { createTestModule } from '@/__tests__/testing-module';
 
 describe('Community (Unit)', () => {
   let app: INestApplication<Server>;
   let lockingBaseUri: string;
   let networkService: jest.MockedObjectDeep<INetworkService>;
+  let identityApi: jest.MockedObjectDeep<IIdentityApi>;
 
   beforeEach(async () => {
     jest.resetAllMocks();
-
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(configuration)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
+    const moduleFixture = await createTestModule({
+      config: configuration,
+      modules: [
+        {
+          originalModule: IdentityApiModule,
+          testModule: TestIdentityApiModule,
+        },
+      ],
+    });
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
     );
     lockingBaseUri = configurationService.getOrThrow('locking.baseUri');
     networkService = moduleFixture.get(NetworkService);
+    identityApi = moduleFixture.get(IIdentityApi);
 
     app = await new TestAppProvider().provide(moduleFixture);
     await app.init();
@@ -88,7 +98,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns`:
-            return Promise.resolve({ data: campaignsPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignsPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -116,7 +129,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns`:
-            return Promise.resolve({ data: campaignsPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignsPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -124,11 +140,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/campaigns`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward the pagination parameters', async () => {
@@ -143,7 +156,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns`:
-            return Promise.resolve({ data: campaignsPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignsPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -210,7 +226,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}`:
-            return Promise.resolve({ data: campaign, status: 200 });
+            return Promise.resolve({ data: rawify(campaign), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -230,7 +246,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${invalidCampaign.resourceId}`:
-            return Promise.resolve({ data: invalidCampaign, status: 200 });
+            return Promise.resolve({
+              data: rawify(invalidCampaign),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -238,11 +257,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/campaigns/${invalidCampaign.resourceId}`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', async () => {
@@ -291,7 +307,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/activities`:
-            return Promise.resolve({ data: campaignActivityPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignActivityPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -323,7 +342,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/activities`:
-            return Promise.resolve({ data: campaignActivityPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignActivityPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -370,7 +392,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/activities`:
-            return Promise.resolve({ data: campaignActivityPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignActivityPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -430,7 +455,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/activities`:
-            return Promise.resolve({ data: campaignActivityPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignActivityPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -440,11 +468,8 @@ describe('Community (Unit)', () => {
         .get(
           `/v1/community/campaigns/${campaign.resourceId}/activities?holder=${holder}`,
         )
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', () => {
@@ -500,7 +525,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/leaderboard`:
-            return Promise.resolve({ data: campaignRankPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignRankPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -529,7 +557,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/leaderboard`:
-            return Promise.resolve({ data: campaignRankPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignRankPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -537,11 +568,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/campaigns/${campaign.resourceId}/leaderboard`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward the pagination parameters', async () => {
@@ -560,7 +588,10 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${campaign.resourceId}/leaderboard`:
-            return Promise.resolve({ data: campaignRankPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(campaignRankPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -630,7 +661,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${resourceId}/leaderboard/${safeAddress}`:
-            return Promise.resolve({ data: campaignRank, status: 200 });
+            return Promise.resolve({ data: rawify(campaignRank), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -664,7 +695,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/campaigns/${resourceId}/leaderboard/${safeAddress}`:
-            return Promise.resolve({ data: campaignRank, status: 200 });
+            return Promise.resolve({ data: rawify(campaignRank), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -672,11 +703,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/campaigns/${resourceId}/leaderboard/${safeAddress}`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', async () => {
@@ -715,6 +743,48 @@ describe('Community (Unit)', () => {
     });
   });
 
+  describe('GET /community/eligibility', () => {
+    it('should return the eligibility check result', async () => {
+      const eligibilityRequest = eligibilityRequestBuilder().build();
+      const eligibility = eligibilityBuilder().build();
+      identityApi.checkEligibility.mockResolvedValue(eligibility);
+
+      await request(app.getHttpServer())
+        .post(`/v1/community/eligibility`)
+        .send(eligibilityRequest)
+        .expect(200)
+        .expect(eligibility);
+
+      expect(identityApi.checkEligibility).toHaveBeenCalledTimes(1);
+      expect(identityApi.checkEligibility).toHaveBeenCalledWith(
+        eligibilityRequest,
+      );
+    });
+
+    it('should return isAllowed:false and isVpn:false if an error occurs during eligibility check', async () => {
+      const eligibilityRequest = eligibilityRequestBuilder().build();
+      identityApi.checkEligibility.mockImplementation(() => {
+        throw new Error('identityApi.checkEligibility() runtime error');
+      });
+      const expected = eligibilityBuilder()
+        .with('requestId', eligibilityRequest.requestId)
+        .with('isAllowed', false)
+        .with('isVpn', false)
+        .build();
+
+      await request(app.getHttpServer())
+        .post(`/v1/community/eligibility`)
+        .send(eligibilityRequest)
+        .expect(200)
+        .expect(expected);
+
+      expect(identityApi.checkEligibility).toHaveBeenCalledTimes(1);
+      expect(identityApi.checkEligibility).toHaveBeenCalledWith(
+        eligibilityRequest,
+      );
+    });
+  });
+
   describe('GET /community/locking/leaderboard', () => {
     it('should get the leaderboard', async () => {
       const leaderboard = pageBuilder()
@@ -723,7 +793,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/leaderboard`:
-            return Promise.resolve({ data: leaderboard, status: 200 });
+            return Promise.resolve({ data: rawify(leaderboard), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -761,7 +831,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/leaderboard`:
-            return Promise.resolve({ data: leaderboard, status: 200 });
+            return Promise.resolve({ data: rawify(leaderboard), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -799,7 +869,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/leaderboard`:
-            return Promise.resolve({ data: leaderboard, status: 200 });
+            return Promise.resolve({ data: rawify(leaderboard), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -807,11 +877,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/locking/leaderboard`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', async () => {
@@ -852,7 +919,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/leaderboard/${lockingRank.holder}`:
-            return Promise.resolve({ data: lockingRank, status: 200 });
+            return Promise.resolve({ data: rawify(lockingRank), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -884,7 +951,7 @@ describe('Community (Unit)', () => {
       networkService.get.mockImplementation(({ url }) => {
         switch (url) {
           case `${lockingBaseUri}/api/v1/leaderboard/${safeAddress}`:
-            return Promise.resolve({ data: lockingRank, status: 200 });
+            return Promise.resolve({ data: rawify(lockingRank), status: 200 });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -892,11 +959,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/locking/${safeAddress}/rank`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', async () => {
@@ -950,7 +1014,10 @@ describe('Community (Unit)', () => {
         switch (url) {
           // Service will have checksummed address
           case `${lockingBaseUri}/api/v1/all-events/${getAddress(safeAddress)}`:
-            return Promise.resolve({ data: lockingHistoryPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(lockingHistoryPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -996,7 +1063,10 @@ describe('Community (Unit)', () => {
         switch (url) {
           // Service will have checksummed address
           case `${lockingBaseUri}/api/v1/all-events/${getAddress(safeAddress)}`:
-            return Promise.resolve({ data: lockingHistoryPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(lockingHistoryPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -1052,7 +1122,10 @@ describe('Community (Unit)', () => {
         switch (url) {
           // Service will have checksummed address
           case `${lockingBaseUri}/api/v1/all-events/${getAddress(safeAddress)}`:
-            return Promise.resolve({ data: lockingHistoryPage, status: 200 });
+            return Promise.resolve({
+              data: rawify(lockingHistoryPage),
+              status: 200,
+            });
           default:
             return Promise.reject(`No matching rule for url: ${url}`);
         }
@@ -1060,11 +1133,8 @@ describe('Community (Unit)', () => {
 
       await request(app.getHttpServer())
         .get(`/v1/community/locking/${safeAddress}/history`)
-        .expect(500)
-        .expect({
-          statusCode: 500,
-          message: 'Internal server error',
-        });
+        .expect(502)
+        .expect({ statusCode: 502, message: 'Bad gateway' });
     });
 
     it('should forward an error from the service', async () => {

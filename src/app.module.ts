@@ -7,10 +7,12 @@ import {
 } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CacheModule as InMemoryCacheModule } from '@nestjs/cache-manager';
 import { ClsMiddleware, ClsModule } from 'nestjs-cls';
 import { join } from 'path';
 import { ChainsModule } from '@/routes/chains/chains.module';
 import { BalancesModule } from '@/routes/balances/balances.module';
+import { PositionsModule } from '@/routes/positions/positions.module';
 import { NetworkModule } from '@/datasources/network/network.module';
 import { ConfigurationModule } from '@/config/configuration.module';
 import { CacheModule } from '@/datasources/cache/cache.module';
@@ -46,40 +48,51 @@ import { RelayControllerModule } from '@/routes/relay/relay.controller.module';
 import { ZodErrorFilter } from '@/routes/common/filters/zod-error.filter';
 import { CacheControlInterceptor } from '@/routes/common/interceptors/cache-control.interceptor';
 import { AuthModule } from '@/routes/auth/auth.module';
-import { TransactionsViewControllerModule } from '@/routes/transactions/transactions-view.controller';
 import { DelegatesV2Module } from '@/routes/delegates/v2/delegates.v2.module';
 import { AccountsModule } from '@/routes/accounts/accounts.module';
 import { NotificationsModuleV2 } from '@/routes/notifications/v2/notifications.module';
 import { TargetedMessagingModule } from '@/routes/targeted-messaging/targeted-messaging.module';
+import { PostgresDatabaseModule } from '@/datasources/db/v1/postgres-database.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { postgresConfig } from '@/config/entities/postgres.config';
+import {
+  LoggingService,
+  type ILoggingService,
+} from '@/logging/logging.interface';
+import { UsersModule } from '@/routes/users/users.module';
+import { SpacesModule } from '@/routes/spaces/spaces.module';
+import { MembersModule } from '@/routes/spaces/members.module';
+import { BullModule } from '@nestjs/bullmq';
+import { CsvExportModule } from '@/modules/csv-export/v1/csv-export.module';
 
 @Module({})
 export class AppModule implements NestModule {
-  // Important: values read via the config factory do not take the .env file
-  // into account. The .env file loading is done by the ConfigurationModule
-  // which is not available at this stage.
   static register(configFactory = configuration): DynamicModule {
     const {
       auth: isAuthFeatureEnabled,
       accounts: isAccountsFeatureEnabled,
+      users: isUsersFeatureEnabled,
       email: isEmailFeatureEnabled,
-      confirmationView: isConfirmationViewEnabled,
       delegatesV2: isDelegatesV2Enabled,
-      pushNotifications: isPushNotificationsEnabled,
-      targetedMessaging: isTargetedMessagingFeatureEnabled,
+      zerionPositions: isZerionPositionsFeatureEnabled,
     } = configFactory()['features'];
 
     return {
       module: AppModule,
       imports: [
+        PostgresDatabaseModule,
         // features
         AboutModule,
         ...(isAccountsFeatureEnabled ? [AccountsModule] : []),
         ...(isAuthFeatureEnabled ? [AuthModule] : []),
         BalancesModule,
+        ...(isZerionPositionsFeatureEnabled ? [PositionsModule] : []),
         ChainsModule,
         CollectiblesModule,
         CommunityModule,
         ContractsModule,
+        CsvExportModule,
         DataDecodedModule,
         // TODO: delete/rename DelegatesModule when clients migration to v2 is completed.
         DelegatesModule,
@@ -90,21 +103,20 @@ export class AppModule implements NestModule {
           : []),
         EstimationsModule,
         HealthModule,
-        ...(isPushNotificationsEnabled
-          ? [HooksModuleWithNotifications, NotificationsModuleV2]
-          : [HooksModule]),
+        HooksModule,
+        NotificationsModuleV2,
         MessagesModule,
         NotificationsModule,
+        ...(isUsersFeatureEnabled
+          ? [UsersModule, SpacesModule, MembersModule]
+          : []),
         OwnersModule,
         RelayControllerModule,
         RootModule,
         SafeAppsModule,
         SafesModule,
-        ...(isTargetedMessagingFeatureEnabled ? [TargetedMessagingModule] : []),
+        TargetedMessagingModule,
         TransactionsModule,
-        ...(isConfirmationViewEnabled
-          ? [TransactionsViewControllerModule]
-          : []),
         // common
         CacheModule,
         // Module for storing and reading from the async local storage
@@ -116,6 +128,7 @@ export class AppModule implements NestModule {
           },
         }),
         ConfigurationModule.register(configFactory),
+        InMemoryCacheModule.register({ isGlobal: true }),
         NetworkModule,
         RequestScopedLoggingModule,
         ScheduleModule.forRoot(),
@@ -124,7 +137,42 @@ export class AppModule implements NestModule {
           // Excludes the paths under '/' (base url) from being served as static content
           // If we do not exclude these paths, the service will try to find the file and
           // return 500 for files that do not exist instead of a 404
-          exclude: ['/(.*)'],
+          exclude: ['{*any}'],
+        }),
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (
+            configService: ConfigService,
+            loggingService: ILoggingService,
+          ) => {
+            const typeormConfig = configService.getOrThrow('db.orm');
+            const cache = configService.get('db.orm.cache');
+            const postgresConfigObject = postgresConfig(
+              {
+                ...configService.getOrThrow('db.connection.postgres'),
+                cache,
+              },
+              loggingService,
+            );
+
+            return {
+              ...typeormConfig,
+              ...postgresConfigObject,
+            };
+          },
+          inject: [ConfigService, LoggingService],
+        }),
+        BullModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => ({
+            connection: {
+              host: configService.getOrThrow<string>('redis.host'),
+              port: Number(configService.getOrThrow<string>('redis.port')),
+              username: configService.get<string>('redis.user'),
+              password: configService.get<string>('redis.pass'),
+            },
+          }),
+          inject: [ConfigService],
         }),
       ],
       providers: [
@@ -157,6 +205,6 @@ export class AppModule implements NestModule {
       // The ClsMiddleware needs to be applied before the LoggerMiddleware
       // in order to generate the request ids that will be logged afterward
       .apply(ClsMiddleware, NotFoundLoggerMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
+      .forRoutes({ path: '{*any}', method: RequestMethod.ALL });
   }
 }

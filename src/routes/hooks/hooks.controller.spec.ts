@@ -1,43 +1,18 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import configuration from '@/config/entities/__tests__/configuration';
 import { IConfigurationService } from '@/config/configuration.service.interface';
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
 import type { Server } from 'net';
-import { NotificationsDatasourceModule } from '@/datasources/notifications/notifications.datasource.module';
-import { TestNotificationsDatasourceModule } from '@/datasources/notifications/__tests__/test.notifications.datasource.module';
+import { createTestModule } from '@/__tests__/testing-module';
 
 describe('Post Hook Events (Unit)', () => {
   let app: INestApplication<Server>;
   let authToken: string;
   let configurationService: IConfigurationService;
 
-  async function initApp(config: typeof configuration): Promise<void> {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(config)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .overrideModule(NotificationsDatasourceModule)
-      .useModule(TestNotificationsDatasourceModule)
-      .compile();
+  async function initApp(): Promise<void> {
+    const moduleFixture = await createTestModule();
+
     app = moduleFixture.createNestApplication();
 
     configurationService = moduleFixture.get(IConfigurationService);
@@ -48,25 +23,14 @@ describe('Post Hook Events (Unit)', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
-    await initApp(configuration);
+    await initApp();
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('should return 410 if the eventsQueue FF is active and the hook is not CHAIN_UPDATE or SAFE_APPS_UPDATE', async () => {
-    const defaultConfiguration = configuration();
-    const testConfiguration = (): typeof defaultConfiguration => ({
-      ...defaultConfiguration,
-      features: {
-        ...defaultConfiguration.features,
-        eventsQueue: true,
-      },
-    });
-
-    await initApp(testConfiguration);
-
+  it('should return 410 if the hook is not CHAIN_UPDATE or SAFE_APPS_UPDATE', async () => {
     const payload = {
       type: 'INCOMING_TOKEN',
       tokenAddress: faker.finance.ethereumAddress(),

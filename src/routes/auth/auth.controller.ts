@@ -14,7 +14,11 @@ import {
   Res,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+<<<<<<< HEAD
 import { Response } from 'express';
+=======
+import { CookieOptions, Response } from 'express';
+>>>>>>> origin/staging
 
 /**
  * The AuthController is responsible for handling authentication:
@@ -31,7 +35,6 @@ export class AuthController {
   static readonly ACCESS_TOKEN_COOKIE_NAME = 'access_token';
   static readonly ACCESS_TOKEN_COOKIE_SAME_SITE_LAX = 'lax';
   static readonly ACCESS_TOKEN_COOKIE_SAME_SITE_NONE = 'none';
-  static readonly CGW_ENV_PRODUCTION = 'production';
   private readonly isProduction: boolean;
 
   constructor(
@@ -64,15 +67,34 @@ export class AuthController {
     const { accessToken } = await this.authService.getAccessToken(siweDto);
 
     res.cookie(AuthController.ACCESS_TOKEN_COOKIE_NAME, accessToken, {
+      ...this.getCookieOptions(),
+      // Extract maxAge from token as it may slightly differ to SiWe message
+      maxAge: this.getMaxAge(accessToken),
+    });
+  }
+
+  @HttpCode(200)
+  @Post('logout')
+  @ApiOkResponse({
+    description:
+      'Empty response body. Cookie value is removed and set to expire.',
+  })
+  logout(@Res({ passthrough: true }) res: Response): void {
+    res.clearCookie(
+      AuthController.ACCESS_TOKEN_COOKIE_NAME,
+      this.getCookieOptions(),
+    );
+  }
+
+  private getCookieOptions(): CookieOptions {
+    return {
       httpOnly: true,
       secure: true,
       sameSite: this.isProduction
         ? AuthController.ACCESS_TOKEN_COOKIE_SAME_SITE_LAX
         : AuthController.ACCESS_TOKEN_COOKIE_SAME_SITE_NONE,
       path: '/',
-      // Extract maxAge from token as it may slightly differ to SiWe message
-      maxAge: this.getMaxAge(accessToken),
-    });
+    };
   }
 
   /**

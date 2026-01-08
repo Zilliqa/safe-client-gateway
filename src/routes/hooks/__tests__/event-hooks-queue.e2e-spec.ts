@@ -2,19 +2,19 @@ import { amqpClientFactory } from '@/__tests__/amqp-client.factory';
 import { redisClientFactory } from '@/__tests__/redis-client.factory';
 import { retry } from '@/__tests__/util/retry';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-import { AppModule } from '@/app.module';
 import configuration from '@/config/entities/configuration';
-import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import { CacheDir } from '@/datasources/cache/entities/cache-dir.entity';
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import type { RedisClientType } from 'redis';
 import { getAddress } from 'viem';
 import type { Server } from 'net';
 import { TEST_SAFE } from '@/routes/common/__tests__/constants';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
+import { PushNotificationsApiModule } from '@/datasources/push-notifications-api/push-notifications-api.module';
+import { TestPushNotificationsApiModule } from '@/datasources/push-notifications-api/__tests__/test.push-notifications-api.module';
+import { createBaseTestModule } from '@/__tests__/testing-module';
 
 describe('Events queue processing e2e tests', () => {
   let app: INestApplication<Server>;
@@ -32,18 +32,17 @@ describe('Events queue processing e2e tests', () => {
         ...defaultConfiguration.amqp,
         queue,
       },
-      features: {
-        ...defaultConfiguration.features,
-        eventsQueue: true,
-      },
     });
-
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register(testConfiguration)],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule({
+      config: testConfiguration,
+      cacheKeyPrefix,
+      modules: [
+        {
+          originalModule: PushNotificationsApiModule,
+          testModule: TestPushNotificationsApiModule,
+        },
+      ],
+    });
 
     app = await new TestAppProvider().provide(moduleRef);
     await app.init();
@@ -110,12 +109,16 @@ describe('Events queue processing e2e tests', () => {
   it.each([
     {
       type: 'PENDING_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'NEW_CONFIRMATION',
@@ -156,12 +159,16 @@ describe('Events queue processing e2e tests', () => {
   it.each([
     {
       type: 'PENDING_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'NEW_CONFIRMATION',
@@ -202,8 +209,11 @@ describe('Events queue processing e2e tests', () => {
   it.each([
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'MODULE_TRANSACTION',
@@ -240,8 +250,11 @@ describe('Events queue processing e2e tests', () => {
   it.each([
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'INCOMING_TOKEN',
@@ -283,8 +296,11 @@ describe('Events queue processing e2e tests', () => {
   it.each([
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'INCOMING_TOKEN',
@@ -402,8 +418,11 @@ describe('Events queue processing e2e tests', () => {
     },
     {
       type: 'EXECUTED_MULTISIG_TRANSACTION',
+      to: faker.finance.ethereumAddress(),
       safeTxHash: faker.string.hexadecimal({ length: 32 }),
       txHash: faker.string.hexadecimal({ length: 32 }),
+      failed: faker.helpers.arrayElement(['true', 'false']),
+      data: faker.string.hexadecimal({ length: 32 }),
     },
     {
       type: 'INCOMING_TOKEN',
@@ -536,4 +555,37 @@ describe('Events queue processing e2e tests', () => {
       expect(cacheContent).toBeNull();
     });
   });
+
+  it.each(['NEW_DELEGATE', 'UPDATED_DELEGATE', 'DELETED_DELEGATE'])(
+    '%s clears delegates',
+    async (type) => {
+      const cacheDir = new CacheDir(
+        `${TEST_SAFE.chainId}_delegates_${TEST_SAFE.address}`,
+        '',
+      );
+      await redisClient.hSet(
+        `${cacheKeyPrefix}-${cacheDir.key}`,
+        cacheDir.field,
+        faker.string.alpha(),
+      );
+      const data = {
+        type,
+        chainId: TEST_SAFE.chainId,
+        address: TEST_SAFE.address,
+        delegate: faker.finance.ethereumAddress(),
+        delegator: faker.finance.ethereumAddress(),
+        label: faker.lorem.word(),
+      };
+
+      await channel.sendToQueue(queueName, data);
+
+      await retry(async () => {
+        const cacheContent = await redisClient.hGet(
+          `${cacheKeyPrefix}-${cacheDir.key}`,
+          cacheDir.field,
+        );
+        expect(cacheContent).toBeNull();
+      });
+    },
+  );
 });

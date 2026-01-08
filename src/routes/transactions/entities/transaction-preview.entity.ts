@@ -1,9 +1,8 @@
-import { ApiExtraModels, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { CreationTransactionInfo } from '@/routes/transactions/entities/creation-transaction-info.entity';
-import { CustomTransactionInfo } from '@/routes/transactions/entities/custom-transaction.entity';
-import { SettingsChangeTransaction } from '@/routes/transactions/entities/settings-change-transaction.entity';
+import { ApiProperty } from '@nestjs/swagger';
+import { BaseTransaction } from '@/routes/transactions/entities/base-transaction.entity';
 import { TransactionData } from '@/routes/transactions/entities/transaction-data.entity';
 import { TransactionInfo } from '@/routes/transactions/entities/transaction-info.entity';
+<<<<<<< HEAD
 import { TransferTransactionInfo } from '@/routes/transactions/entities/transfer-transaction-info.entity';
 import { SwapOrderTransactionInfo } from '@/routes/transactions/entities/swaps/swap-order-info.entity';
 import { TwapOrderTransactionInfo } from '@/routes/transactions/entities/swaps/twap-order-info.entity';
@@ -37,11 +36,15 @@ export class TransactionPreview {
     ],
   })
   txInfo: TransactionInfo;
+=======
+
+export class TransactionPreview extends BaseTransaction {
+>>>>>>> origin/staging
   @ApiProperty()
   txData: TransactionData;
 
   constructor(txInfo: TransactionInfo, txData: TransactionData) {
-    this.txInfo = txInfo;
+    super(txInfo);
     this.txData = txData;
   }
 }

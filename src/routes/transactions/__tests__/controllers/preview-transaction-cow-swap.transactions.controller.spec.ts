@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
+<<<<<<< HEAD
 import type { TestingModule } from '@nestjs/testing';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
@@ -13,10 +14,20 @@ import { dataDecodedBuilder } from '@/domain/data-decoder/entities/__tests__/dat
 import { Operation } from '@/domain/safe/entities/operation.entity';
 import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
 import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
+=======
+import request from 'supertest';
+import { TestAppProvider } from '@/__tests__/test-app.provider';
+import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
+import { contractBuilder } from '@/domain/data-decoder/v2/entities/__tests__/contract.builder';
+import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
+import { Operation } from '@/domain/safe/entities/operation.entity';
+import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
+>>>>>>> origin/staging
 import configuration from '@/config/entities/__tests__/configuration';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
+<<<<<<< HEAD
 import { RequestScopedLoggingModule } from '@/logging/logging.module';
 import { previewTransactionDtoBuilder } from '@/routes/transactions/entities/__tests__/preview-transaction.dto.builder';
 import { CacheModule } from '@/datasources/cache/cache.module';
@@ -24,6 +35,10 @@ import { NetworkModule } from '@/datasources/network/network.module';
 import { getAddress } from 'viem';
 import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
 import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
+=======
+import { previewTransactionDtoBuilder } from '@/routes/transactions/entities/__tests__/preview-transaction.dto.builder';
+import { getAddress } from 'viem';
+>>>>>>> origin/staging
 import type { Server } from 'net';
 import { setPreSignatureEncoder } from '@/domain/swaps/contracts/__tests__/encoders/gp-v2-encoder.builder';
 import { orderBuilder } from '@/domain/swaps/entities/__tests__/order.builder';
@@ -32,11 +47,21 @@ import {
   multiSendEncoder,
   multiSendTransactionsEncoder,
 } from '@/domain/contracts/__tests__/encoders/multi-send-encoder.builder';
+<<<<<<< HEAD
+=======
+import { rawify } from '@/validation/entities/raw.entity';
+import { pageBuilder } from '@/domain/entities/__tests__/page.builder';
+import { createTestModule } from '@/__tests__/testing-module';
+>>>>>>> origin/staging
 
 describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () => {
   let app: INestApplication<Server>;
   let safeConfigUrl: string;
   let networkService: jest.MockedObjectDeep<INetworkService>;
+<<<<<<< HEAD
+=======
+  let dataDecoderUrl: string;
+>>>>>>> origin/staging
   let swapsChainId: string;
   let swapsApiUrl: string;
   let swapsExplorerUrl: string;
@@ -48,17 +73,21 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
     const baseConfig = configuration();
     const testConfiguration: typeof configuration = () => ({
       ...baseConfig,
+<<<<<<< HEAD
       features: {
         ...baseConfig.features,
         swapsDecoding: true,
         twapsDecoding: true,
       },
+=======
+>>>>>>> origin/staging
       swaps: {
         ...baseConfig.swaps,
         restrictApps: true,
         allowedApps: [swapsVerifiedApp],
       },
     });
+<<<<<<< HEAD
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule.register(testConfiguration)],
     })
@@ -71,14 +100,26 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       .overrideModule(QueuesApiModule)
       .useModule(TestQueuesApiModule)
       .compile();
+=======
+    const moduleFixture = await createTestModule({
+      config: testConfiguration,
+    });
+>>>>>>> origin/staging
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
     );
     safeConfigUrl = configurationService.getOrThrow('safeConfig.baseUri');
+<<<<<<< HEAD
     const swapApiConfig =
       configurationService.getOrThrow<Record<string, string>>('swaps.api');
     swapsChainId = faker.helpers.arrayElement(Object.keys(swapApiConfig));
+=======
+    dataDecoderUrl = configurationService.getOrThrow('safeDataDecoder.baseUri');
+    const swapApiConfig =
+      configurationService.getOrThrow<Record<string, string>>('swaps.api');
+    swapsChainId = faker.helpers.objectKey(swapApiConfig);
+>>>>>>> origin/staging
     swapsApiUrl = swapApiConfig[swapsChainId];
     swapsExplorerUrl = configurationService.getOrThrow(`swaps.explorerBaseUri`);
     networkService = moduleFixture.get(NetworkService);
@@ -87,7 +128,11 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
     await app.init();
   });
 
+<<<<<<< HEAD
   afterAll(async () => {
+=======
+  afterEach(async () => {
+>>>>>>> origin/staging
     await app.close();
   });
 
@@ -111,26 +156,47 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.resolve({ data: order, status: 200 });
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
+          return Promise.resolve({ data: rawify(order), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.buyToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.sellToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -138,13 +204,31 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -161,7 +245,10 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           txInfo: {
             type: 'SwapOrder',
             humanDescription: null,
+<<<<<<< HEAD
             richDecodedInfo: null,
+=======
+>>>>>>> origin/staging
             uid: order.uid,
             status: order.status,
             kind: order.kind,
@@ -172,7 +259,19 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             executedSellAmount: order.executedSellAmount.toString(),
             executedBuyAmount: order.executedBuyAmount.toString(),
             explorerUrl: `${swapsExplorerUrl}orders/${order.uid}`,
+<<<<<<< HEAD
             executedSurplusFee: order.executedSurplusFee?.toString() ?? null,
+=======
+            executedFee: order.executedFee.toString(),
+            executedFeeToken: {
+              address: sellToken.address,
+              decimals: sellToken.decimals,
+              logoUri: sellToken.logoUri,
+              name: sellToken.name,
+              symbol: sellToken.symbol,
+              trusted: sellToken.trusted,
+            },
+>>>>>>> origin/staging
             sellToken: {
               address: sellToken.address,
               decimals: sellToken.decimals,
@@ -199,12 +298,20 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             to: {
               value: previewTransactionDto.to,
               name: contractResponse.displayName,
+<<<<<<< HEAD
               logoUri: contractResponse.logoUri,
+=======
+              logoUri: contractResponse.logoUrl,
+>>>>>>> origin/staging
             },
             value: previewTransactionDto.value,
             operation: previewTransactionDto.operation,
             trustedDelegateCallTarget: null,
             addressInfoIndex: null,
+<<<<<<< HEAD
+=======
+            tokenInfoIndex: null,
+>>>>>>> origin/staging
           },
         });
     });
@@ -238,29 +345,51 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+>>>>>>> origin/staging
       const tokenResponse = tokenBuilder()
         .with('address', swapTransaction.to)
         .build();
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+<<<<<<< HEAD
           return Promise.resolve({ data: chain, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.resolve({ data: order, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
+          return Promise.resolve({ data: rawify(order), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.buyToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.sellToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -268,19 +397,41 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${swapTransaction.to}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: tokenResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(tokenResponse), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -297,7 +448,10 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           txInfo: {
             type: 'SwapOrder',
             humanDescription: null,
+<<<<<<< HEAD
             richDecodedInfo: null,
+=======
+>>>>>>> origin/staging
             uid: order.uid,
             status: order.status,
             kind: order.kind,
@@ -308,7 +462,19 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             executedSellAmount: order.executedSellAmount.toString(),
             executedBuyAmount: order.executedBuyAmount.toString(),
             explorerUrl: `${swapsExplorerUrl}orders/${order.uid}`,
+<<<<<<< HEAD
             executedSurplusFee: order.executedSurplusFee?.toString() ?? null,
+=======
+            executedFee: order.executedFee.toString(),
+            executedFeeToken: {
+              address: sellToken.address,
+              decimals: sellToken.decimals,
+              logoUri: sellToken.logoUri,
+              name: sellToken.name,
+              symbol: sellToken.symbol,
+              trusted: sellToken.trusted,
+            },
+>>>>>>> origin/staging
             sellToken: {
               address: sellToken.address,
               decimals: sellToken.decimals,
@@ -335,16 +501,25 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             to: {
               value: previewTransactionDto.to,
               name: contractResponse.displayName,
+<<<<<<< HEAD
               logoUri: contractResponse.logoUri,
+=======
+              logoUri: contractResponse.logoUrl,
+>>>>>>> origin/staging
             },
             value: previewTransactionDto.value,
             operation: previewTransactionDto.operation,
             trustedDelegateCallTarget: null,
             addressInfoIndex: null,
+<<<<<<< HEAD
+=======
+            tokenInfoIndex: null,
+>>>>>>> origin/staging
           },
         });
     });
 
+<<<<<<< HEAD
     it('should return executedSurplusFee as null if not available', async () => {
       const chain = chainBuilder().with('chainId', swapsChainId).build();
       const safe = safeBuilder().build();
@@ -419,6 +594,8 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
         );
     });
 
+=======
+>>>>>>> origin/staging
     it('should return a "standard" transaction preview if order data is not available', async () => {
       const chain = chainBuilder().with('chainId', swapsChainId).build();
       const safe = safeBuilder().build();
@@ -436,9 +613,18 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.reject({ status: 500 });
@@ -446,6 +632,7 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -453,13 +640,31 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -493,12 +698,24 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.resolve({ data: order, status: 200 });
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
+          return Promise.resolve({ data: rawify(order), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.buyToken}`
@@ -508,11 +725,16 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.sellToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -520,13 +742,31 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -560,17 +800,33 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.resolve({ data: order, status: 200 });
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
+          return Promise.resolve({ data: rawify(order), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.buyToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.sellToken}`
@@ -580,6 +836,7 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -587,13 +844,31 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -629,26 +904,47 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contractResponse = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
           return Promise.resolve({ data: order, status: 200 });
+=======
+      const contractPageResponse = pageBuilder()
+        .with('results', [contractResponse])
+        .build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/orders/${order.uid}`) {
+          return Promise.resolve({ data: rawify(order), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.buyToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/tokens/${order.sellToken}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -656,13 +952,31 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contractResponse.address}`
         ) {
           return Promise.resolve({ data: contractResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (
+          url ===
+          `${dataDecoderUrl}/api/v1/contracts/${contractResponse.address}`
+        ) {
+          return Promise.resolve({
+            data: rawify(contractPageResponse),
+            status: 200,
+          });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -725,28 +1039,47 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contract = contractBuilder()
         .with('address', ComposableCowAddress)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
+=======
+      const contractPage = pageBuilder().with('results', [contract]).build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${buyToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${sellToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
           return Promise.resolve({ data: fullAppData, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
+          return Promise.resolve({ data: rawify(fullAppData), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -754,13 +1087,25 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contract.address}`
         ) {
           return Promise.resolve({ data: contract, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (url === `${dataDecoderUrl}/api/v1/contracts/${contract.address}`) {
+          return Promise.resolve({ data: rawify(contractPage), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -777,7 +1122,10 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           txInfo: {
             type: 'TwapOrder',
             humanDescription: null,
+<<<<<<< HEAD
             richDecodedInfo: null,
+=======
+>>>>>>> origin/staging
             status: 'presignaturePending',
             kind: 'sell',
             class: 'limit',
@@ -787,7 +1135,19 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             buyAmount: '1222579021996502268',
             executedSellAmount: '0',
             executedBuyAmount: '0',
+<<<<<<< HEAD
             executedSurplusFee: '0',
+=======
+            executedFee: '0',
+            executedFeeToken: {
+              address: sellToken.address,
+              decimals: sellToken.decimals,
+              logoUri: sellToken.logoUri,
+              name: sellToken.name,
+              symbol: sellToken.symbol,
+              trusted: sellToken.trusted,
+            },
+>>>>>>> origin/staging
             sellToken: {
               address: sellToken.address,
               decimals: sellToken.decimals,
@@ -820,12 +1180,20 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             to: {
               value: ComposableCowAddress,
               name: contract.displayName,
+<<<<<<< HEAD
               logoUri: contract.logoUri,
+=======
+              logoUri: contract.logoUrl,
+>>>>>>> origin/staging
             },
             value: previewTransactionDto.value,
             operation: previewTransactionDto.operation,
             trustedDelegateCallTarget: null,
             addressInfoIndex: null,
+<<<<<<< HEAD
+=======
+            tokenInfoIndex: null,
+>>>>>>> origin/staging
           },
         });
     });
@@ -853,31 +1221,51 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contract = contractBuilder()
         .with('address', previewTransactionDto.to)
         .build();
+<<<<<<< HEAD
+=======
+      const contractPage = pageBuilder().with('results', [contract]).build();
+>>>>>>> origin/staging
       const tokenResponse = tokenBuilder()
         .with('address', ComposableCowAddress)
         .build();
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+<<<<<<< HEAD
           return Promise.resolve({ data: chain, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${buyToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${sellToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
           return Promise.resolve({ data: fullAppData, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
+          return Promise.resolve({ data: rawify(fullAppData), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -885,19 +1273,35 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contract.address}`
         ) {
           return Promise.resolve({ data: contract, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (url === `${dataDecoderUrl}/api/v1/contracts/${contract.address}`) {
+          return Promise.resolve({ data: rawify(contractPage), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${twapTransaction.to}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: tokenResponse, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(tokenResponse), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -914,7 +1318,10 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           txInfo: {
             type: 'TwapOrder',
             humanDescription: null,
+<<<<<<< HEAD
             richDecodedInfo: null,
+=======
+>>>>>>> origin/staging
             status: 'presignaturePending',
             kind: 'sell',
             class: 'limit',
@@ -924,7 +1331,19 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             buyAmount: '1222579021996502268',
             executedSellAmount: '0',
             executedBuyAmount: '0',
+<<<<<<< HEAD
             executedSurplusFee: '0',
+=======
+            executedFee: '0',
+            executedFeeToken: {
+              address: sellToken.address,
+              decimals: sellToken.decimals,
+              logoUri: sellToken.logoUri,
+              name: sellToken.name,
+              symbol: sellToken.symbol,
+              trusted: sellToken.trusted,
+            },
+>>>>>>> origin/staging
             sellToken: {
               address: sellToken.address,
               decimals: sellToken.decimals,
@@ -957,12 +1376,20 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
             to: {
               value: previewTransactionDto.to,
               name: contract.displayName,
+<<<<<<< HEAD
               logoUri: contract.logoUri,
+=======
+              logoUri: contract.logoUrl,
+>>>>>>> origin/staging
             },
             value: previewTransactionDto.value,
             operation: previewTransactionDto.operation,
             trustedDelegateCallTarget: null,
             addressInfoIndex: null,
+<<<<<<< HEAD
+=======
+            tokenInfoIndex: null,
+>>>>>>> origin/staging
           },
         });
     });
@@ -978,9 +1405,16 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contract = contractBuilder()
         .with('address', ComposableCowAddress)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
+=======
+      const contractPage = pageBuilder().with('results', [contract]).build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
@@ -992,14 +1426,22 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           url ===
           `${chain.transactionService}/api/v1/tokens/${sellToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
           return Promise.resolve({ data: fullAppData, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
+          return Promise.resolve({ data: rawify(fullAppData), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -1007,13 +1449,25 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contract.address}`
         ) {
           return Promise.resolve({ data: contract, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (url === `${dataDecoderUrl}/api/v1/contracts/${contract.address}`) {
+          return Promise.resolve({ data: rawify(contractPage), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -1040,15 +1494,26 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contract = contractBuilder()
         .with('address', ComposableCowAddress)
         .build();
+<<<<<<< HEAD
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
           return Promise.resolve({ data: chain, status: 200 });
+=======
+      const contractPage = pageBuilder().with('results', [contract]).build();
+      networkService.get.mockImplementation(({ url }) => {
+        if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${buyToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
@@ -1057,11 +1522,16 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           return Promise.reject({ status: 500 });
         }
         if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
+<<<<<<< HEAD
           return Promise.resolve({ data: fullAppData, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(fullAppData), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -1069,13 +1539,25 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contract.address}`
         ) {
           return Promise.resolve({ data: contract, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (url === `${dataDecoderUrl}/api/v1/contracts/${contract.address}`) {
+          return Promise.resolve({ data: rawify(contractPage), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }
@@ -1102,6 +1584,10 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       const contract = contractBuilder()
         .with('address', ComposableCowAddress)
         .build();
+<<<<<<< HEAD
+=======
+      const contractPage = pageBuilder().with('results', [contract]).build();
+>>>>>>> origin/staging
       const fullAppData = {
         fullAppData: JSON.stringify({
           appCode:
@@ -1111,26 +1597,42 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
       };
       networkService.get.mockImplementation(({ url }) => {
         if (url === `${safeConfigUrl}/api/v1/chains/${chain.chainId}`) {
+<<<<<<< HEAD
           return Promise.resolve({ data: chain, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(chain), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${buyToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: buyToken, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(buyToken), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url ===
           `${chain.transactionService}/api/v1/tokens/${sellToken.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: sellToken, status: 200 });
         }
         if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
           return Promise.resolve({ data: fullAppData, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(sellToken), status: 200 });
+        }
+        if (url === `${swapsApiUrl}/api/v1/app_data/${appDataHash}`) {
+          return Promise.resolve({ data: rawify(fullAppData), status: 200 });
+>>>>>>> origin/staging
         }
         if (
           url === `${chain.transactionService}/api/v1/safes/${safe.address}`
         ) {
+<<<<<<< HEAD
           return Promise.resolve({ data: safe, status: 200 });
         }
         if (
@@ -1138,13 +1640,25 @@ describe('Preview transaction - CoW Swap - Transactions Controller (Unit)', () =
           `${chain.transactionService}/api/v1/contracts/${contract.address}`
         ) {
           return Promise.resolve({ data: contract, status: 200 });
+=======
+          return Promise.resolve({ data: rawify(safe), status: 200 });
+        }
+        if (url === `${dataDecoderUrl}/api/v1/contracts/${contract.address}`) {
+          return Promise.resolve({ data: rawify(contractPage), status: 200 });
+>>>>>>> origin/staging
         }
         return Promise.reject(new Error(`Could not match ${url}`));
       });
       networkService.post.mockImplementation(({ url }) => {
+<<<<<<< HEAD
         if (url === `${chain.transactionService}/api/v1/data-decoder/`) {
           return Promise.resolve({
             data: dataDecoded,
+=======
+        if (url === `${dataDecoderUrl}/api/v1/data-decoder`) {
+          return Promise.resolve({
+            data: rawify(dataDecoded),
+>>>>>>> origin/staging
             status: 200,
           });
         }

@@ -1,12 +1,10 @@
 import type { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import type { RedisClientType } from 'redis';
 import request from 'supertest';
-import { AppModule } from '@/app.module';
 import { redisClientFactory } from '@/__tests__/redis-client.factory';
-import { CacheKeyPrefix } from '@/datasources/cache/constants';
 import type { Server } from 'net';
 import { TEST_SAFE } from '@/routes/common/__tests__/constants';
+import { createBaseTestModule } from '@/__tests__/testing-module';
 
 describe('Get safes by owner e2e test', () => {
   let app: INestApplication<Server>;
@@ -14,12 +12,7 @@ describe('Get safes by owner e2e test', () => {
   const cacheKeyPrefix = crypto.randomUUID();
 
   beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.register()],
-    })
-      .overrideProvider(CacheKeyPrefix)
-      .useValue(cacheKeyPrefix)
-      .compile();
+    const moduleRef = await createBaseTestModule();
 
     app = moduleRef.createNestApplication();
     await app.init();

@@ -4,6 +4,8 @@ import { CacheRouter } from '@/datasources/cache/cache.router';
 import type { ICacheService } from '@/datasources/cache/cache.service.interface';
 import type { HttpErrorFactory } from '@/datasources/errors/http-error-factory';
 import type { DedicatedStakingStats } from '@/datasources/staking-api/entities/dedicated-staking-stats.entity';
+import type { DefiMorphoExtraReward } from '@/datasources/staking-api/entities/defi-morpho-extra-reward.entity';
+import type { DefiVaultStake } from '@/datasources/staking-api/entities/defi-vault-stake.entity';
 import type {
   DefiVaultStats,
   DefiVaultStatsChains,
@@ -11,9 +13,12 @@ import type {
 import type { Deployment } from '@/datasources/staking-api/entities/deployment.entity';
 import type { NetworkStats } from '@/datasources/staking-api/entities/network-stats.entity';
 import type { PooledStakingStats } from '@/datasources/staking-api/entities/pooled-staking-stats.entity';
+import type { RewardsFee } from '@/datasources/staking-api/entities/rewards-fee.entity';
 import type { Stake } from '@/datasources/staking-api/entities/stake.entity';
 import type { TransactionStatus } from '@/datasources/staking-api/entities/transaction-status.entity';
 import type { IStakingApi } from '@/domain/interfaces/staking-api.interface';
+import type { Raw } from '@/validation/entities/raw.entity';
+import { z, ZodError } from 'zod';
 
 export class KilnApi implements IStakingApi {
   public static DefiVaultStatsChains: {
@@ -24,6 +29,7 @@ export class KilnApi implements IStakingApi {
     bsc: '56',
     matic: '137',
     op: '10',
+    base: '8453',
   };
 
   private readonly stakingExpirationTimeInSeconds: number;
@@ -37,6 +43,7 @@ export class KilnApi implements IStakingApi {
     private readonly configurationService: IConfigurationService,
     private readonly cacheService: ICacheService,
     private readonly chainId: string,
+    private readonly cacheType: 'earn' | 'staking',
   ) {
     this.stakingExpirationTimeInSeconds =
       this.configurationService.getOrThrow<number>(
@@ -50,143 +57,207 @@ export class KilnApi implements IStakingApi {
 
   // Important: there is no hook which invalidates this endpoint,
   // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
-  async getDeployments(): Promise<Array<Deployment>> {
-    try {
-      const url = `${this.baseUrl}/v1/deployments`;
-      const cacheDir = CacheRouter.getStakingDeploymentsCacheDir();
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: Array<Deployment>;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
+  async getDeployments(): Promise<Raw<Array<Deployment>>> {
+    const url = `${this.baseUrl}/v1/deployments`;
+    const cacheDir = CacheRouter.getStakingDeploymentsCacheDir(this.cacheType);
+    return await this.get<{
+      data: Array<Deployment>;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   // Important: there is no hook which invalidates this endpoint,
   // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
-  async getNetworkStats(): Promise<NetworkStats> {
-    try {
-      const url = `${this.baseUrl}/v1/eth/network-stats`;
-      const cacheDir = CacheRouter.getStakingNetworkStatsCacheDir();
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{ data: NetworkStats }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
+  async getRewardsFee(contract: `0x${string}`): Promise<Raw<RewardsFee>> {
+    const url = `${this.baseUrl}/v1/eth/onchain/v1/fee`;
+    const cacheDir = CacheRouter.getStakingRewardsFeeCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      contract,
+    });
+    return await this.get<{
+      data: RewardsFee;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+        params: {
+          integration: contract,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   // Important: there is no hook which invalidates this endpoint,
   // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
-  async getDedicatedStakingStats(): Promise<DedicatedStakingStats> {
-    try {
-      const url = `${this.baseUrl}/v1/eth/kiln-stats`;
-      const cacheDir = CacheRouter.getStakingDedicatedStakingStatsCacheDir();
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: DedicatedStakingStats;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
+  async getNetworkStats(): Promise<Raw<NetworkStats>> {
+    const url = `${this.baseUrl}/v1/eth/network-stats`;
+    const cacheDir = CacheRouter.getStakingNetworkStatsCacheDir(this.cacheType);
+    return await this.get<{ data: NetworkStats }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
+  }
+
+  // Important: there is no hook which invalidates this endpoint,
+  // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
+  async getDedicatedStakingStats(): Promise<Raw<DedicatedStakingStats>> {
+    const url = `${this.baseUrl}/v1/eth/kiln-stats`;
+    const cacheDir = CacheRouter.getStakingDedicatedStakingStatsCacheDir(
+      this.cacheType,
+    );
+    return await this.get<{
+      data: DedicatedStakingStats;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   // Important: there is no hook which invalidates this endpoint,
   // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
   async getPooledStakingStats(
     pool: `0x${string}`,
-  ): Promise<PooledStakingStats> {
-    try {
-      const url = `${this.baseUrl}/v1/eth/onchain/v2/network-stats`;
-      const cacheDir = CacheRouter.getStakingPooledStakingStatsCacheDir(pool);
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: PooledStakingStats;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          params: {
-            integration: pool,
-          },
+  ): Promise<Raw<PooledStakingStats>> {
+    const url = `${this.baseUrl}/v1/eth/onchain/v2/network-stats`;
+    const cacheDir = CacheRouter.getStakingPooledStakingStatsCacheDir({
+      cacheType: this.cacheType,
+      pool,
+    });
+    return await this.get<{
+      data: PooledStakingStats;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+        params: {
+          integration: pool,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   // Important: there is no hook which invalidates this endpoint,
   // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
   async getDefiVaultStats(
     vault: `0x${string}`,
-  ): Promise<Array<DefiVaultStats>> {
-    try {
-      const url = `${this.baseUrl}/v1/defi/network-stats`;
-      const cacheDir = CacheRouter.getStakingDefiVaultStatsCacheDir({
-        chainId: this.chainId,
-        vault,
-      });
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: Array<DefiVaultStats>;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          params: {
-            vaults: this.getDefiVaultIdentifier(vault),
-          },
+  ): Promise<Raw<Array<DefiVaultStats>>> {
+    const url = `${this.baseUrl}/v1/defi/network-stats`;
+    const cacheDir = CacheRouter.getStakingDefiVaultStatsCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      vault,
+    });
+    return await this.get<{
+      data: Array<DefiVaultStats>;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+        params: {
+          vaults: this.getDefiVaultIdentifier(vault),
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
+  }
+
+  // Important: there is no hook which invalidates this endpoint,
+  // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
+  async getDefiVaultStakes(args: {
+    safeAddress: `0x${string}`;
+    vault: `0x${string}`;
+  }): Promise<Raw<Array<DefiVaultStake>>> {
+    const url = `${this.baseUrl}/v1/defi/stakes`;
+    const cacheDir = CacheRouter.getStakingDefiVaultStakesCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      safeAddress: args.safeAddress,
+      vault: args.vault,
+    });
+    return await this.get<{
+      data: Array<DefiVaultStake>;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        params: {
+          vaults: this.getDefiVaultIdentifier(args.vault),
+          wallets: args.safeAddress,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
+  }
+
+  // Important: there is no hook which invalidates this endpoint,
+  // Therefore, this data will live in cache until [stakingExpirationTimeInSeconds]
+  async getDefiMorphoExtraRewards(
+    safeAddress: `0x${string}`,
+  ): Promise<Raw<Array<DefiMorphoExtraReward>>> {
+    const url = `${this.baseUrl}/v1/defi/extra-rewards/morpho`;
+    const cacheDir = CacheRouter.getStakingDefiMorphoExtraRewardsCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      safeAddress,
+    });
+    return await this.get<{
+      data: Array<DefiMorphoExtraReward>;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        params: {
+          wallets: safeAddress,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   /**
@@ -203,37 +274,32 @@ export class KilnApi implements IStakingApi {
   async getStakes(args: {
     safeAddress: `0x${string}`;
     validatorsPublicKeys: Array<`0x${string}`>;
-  }): Promise<Stake[]> {
-    try {
-      const url = `${this.baseUrl}/v1/eth/stakes`;
-      const cacheDir = CacheRouter.getStakingStakesCacheDir({
-        chainId: this.chainId,
-        safeAddress: args.safeAddress,
-        validatorsPublicKeys: args.validatorsPublicKeys,
-      });
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: Array<Stake>;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          params: {
-            validators: args.validatorsPublicKeys.join(','),
-            // Adds net_claimable_consensus_rewards to response
-            onchain_v1_include_net_rewards: true,
-          },
+  }): Promise<Raw<Array<Stake>>> {
+    const url = `${this.baseUrl}/v1/eth/stakes`;
+    const cacheDir = CacheRouter.getStakingStakesCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      safeAddress: args.safeAddress,
+      validatorsPublicKeys: args.validatorsPublicKeys,
+    });
+    return await this.get<{
+      data: Array<Stake>;
+    }>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
-      return data;
-    } catch (error) {
-      throw this.httpErrorFactory.from(error);
-    }
+        params: {
+          validators: args.validatorsPublicKeys.join(','),
+          // Adds net_claimable_consensus_rewards to response
+          onchain_v1_include_net_rewards: true,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
   }
 
   /**
@@ -251,32 +317,51 @@ export class KilnApi implements IStakingApi {
 
   async getTransactionStatus(
     txHash: `0x${string}`,
-  ): Promise<TransactionStatus> {
-    try {
-      const url = `${this.baseUrl}/v1/eth/transaction/status`;
-      const cacheDir = CacheRouter.getStakingTransactionStatusCacheDir({
-        chainId: this.chainId,
-        txHash,
-      });
-      // Note: Kiln always return { data: T }
-      const { data } = await this.dataSource.get<{
-        data: TransactionStatus;
-      }>({
-        cacheDir,
-        url,
-        networkRequest: {
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-          params: {
-            tx_hash: txHash,
-          },
+  ): Promise<Raw<TransactionStatus>> {
+    const url = `${this.baseUrl}/v1/eth/transaction/status`;
+    const cacheDir = CacheRouter.getStakingTransactionStatusCacheDir({
+      cacheType: this.cacheType,
+      chainId: this.chainId,
+      txHash,
+    });
+    return await this.get<TransactionStatus>({
+      cacheDir,
+      url,
+      networkRequest: {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
         },
-        notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
-        expireTimeSeconds: this.stakingExpirationTimeInSeconds,
-      });
+        params: {
+          tx_hash: txHash,
+        },
+      },
+      notFoundExpireTimeSeconds: this.defaultNotFoundExpirationTimeSeconds,
+      expireTimeSeconds: this.stakingExpirationTimeInSeconds,
+    });
+  }
+
+  /**
+   * Parses response from Raw<T> to { data: Raw<T> } as Kiln API returns { data: T }
+   * @param args - arguments for {@link CacheFirstDataSource.get}
+   * @returns rawified response
+   */
+  private async get<T>(
+    args: Parameters<typeof this.dataSource.get>[0],
+  ): Promise<Raw<T>> {
+    try {
+      const { data } = await this.dataSource
+        .get<{
+          data: TransactionStatus;
+        }>(args)
+        .then((res) => {
+          // Ensuring response is { data: T }, the data is parsed in the domain
+          return z.object({ data: z.unknown() }).parse(res) as { data: Raw<T> };
+        });
       return data;
     } catch (error) {
+      if (error instanceof ZodError) {
+        throw error;
+      }
       throw this.httpErrorFactory.from(error);
     }
   }
