@@ -21,10 +21,7 @@ import { CommunityModule } from '@/routes/community/community.module';
 import { ContractsModule } from '@/routes/contracts/contracts.module';
 import { DataDecodedModule } from '@/routes/data-decode/data-decoded.module';
 import { DelegatesModule } from '@/routes/delegates/delegates.module';
-import {
-  HooksModule,
-  HooksModuleWithNotifications,
-} from '@/routes/hooks/hooks.module';
+import { HooksModule } from '@/routes/hooks/hooks.module';
 import { SafeAppsModule } from '@/routes/safe-apps/safe-apps.module';
 import { HealthModule } from '@/routes/health/health.module';
 import { OwnersModule } from '@/routes/owners/owners.module';

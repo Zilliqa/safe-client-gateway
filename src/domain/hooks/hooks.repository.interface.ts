@@ -17,19 +17,6 @@ export interface IHooksRepository {
     EventNotificationsHelperModule,
     QueuesRepositoryModule,
   ],
-  providers: [
-    { provide: IHooksRepository, useClass: HooksRepository },
-  ],
-  exports: [IHooksRepository],
-})
-export class HooksRepositoryWithNotificationsModule {}
-
-// TODO: Remove after notifications FF is enabled
-// Note: trying to convert this into a dynamic module proved to be too complex
-// due to config injection issues from the ConfigurationService so this is a
-// temporary solution
-@Module({
-  imports: [EventCacheHelperModule, QueuesRepositoryModule],
   providers: [{ provide: IHooksRepository, useClass: HooksRepository }],
   exports: [IHooksRepository],
 })
