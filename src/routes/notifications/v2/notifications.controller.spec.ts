@@ -1,50 +1,18 @@
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-<<<<<<< HEAD
-import { AppModule } from '@/app.module';
-=======
->>>>>>> origin/staging
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import configuration from '@/config/entities/__tests__/configuration';
 import { TestAccountsDataSourceModule } from '@/datasources/accounts/__tests__/test.accounts.datasource.module';
 import { AccountsDatasourceModule } from '@/datasources/accounts/accounts.datasource.module';
-<<<<<<< HEAD
-import { TestNotificationsDatasourceModule } from '@/datasources/notifications/__tests__/test.notifications.datasource.module';
-import { NotificationsDatasourceModule } from '@/datasources/notifications/notifications.datasource.module';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import jwtConfiguration from '@/datasources/jwt/configuration/__tests__/jwt.configuration';
-import {
-  JWT_CONFIGURATION_MODULE,
-  JwtConfigurationModule,
-} from '@/datasources/jwt/configuration/jwt.configuration.module';
-import { IJwtService } from '@/datasources/jwt/jwt.service.interface';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import type { INetworkService } from '@/datasources/network/network.service.interface';
-import { NetworkService } from '@/datasources/network/network.service.interface';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-=======
 import { IJwtService } from '@/datasources/jwt/jwt.service.interface';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
->>>>>>> origin/staging
 import { authPayloadDtoBuilder } from '@/domain/auth/entities/__tests__/auth-payload-dto.entity.builder';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import { delegateBuilder } from '@/domain/delegate/entities/__tests__/delegate.builder';
 import { pageBuilder } from '@/domain/entities/__tests__/page.builder';
-<<<<<<< HEAD
-import { INotificationsDatasource } from '@/domain/interfaces/notifications.datasource.interface';
-import { NotificationType } from '@/domain/notifications/v2/entities/notification-type.entity';
-import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { upsertSubscriptionsDtoBuilder } from '@/routes/notifications/v1/entities/__tests__/upsert-subscriptions.dto.entity.builder';
-=======
 import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
 import { upsertSubscriptionsDtoBuilder } from '@/routes/notifications/v2/entities/__tests__/upsert-subscriptions.dto.builder';
 import { deleteAllSubscriptionsDtoBuilder } from '@/domain/notifications/v2/entities/__tests__/delete-all-subscriptions.dto.builder';
->>>>>>> origin/staging
 import type { Chain } from '@/routes/chains/entities/chain.entity';
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
@@ -52,18 +20,11 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import type { Server } from 'net';
 import request from 'supertest';
 import { getAddress } from 'viem';
 import { CounterfactualSafesDatasourceModule } from '@/datasources/accounts/counterfactual-safes/counterfactual-safes.datasource.module';
 import { TestCounterfactualSafesDataSourceModule } from '@/datasources/accounts/counterfactual-safes/__tests__/test.counterfactual-safes.datasource.module';
-<<<<<<< HEAD
-=======
 import { INotificationsRepositoryV2 } from '@/domain/notifications/v2/notifications.repository.interface';
 import { NotificationType } from '@/datasources/notifications/entities/notification-type.entity.db';
 import { TestAddressBooksDataSourceModule } from '@/datasources/accounts/address-books/__tests__/test.address-books.datasource.module';
@@ -73,18 +34,13 @@ import { NotificationsRepositoryV2Module } from '@/domain/notifications/v2/notif
 import { TestNotificationsRepositoryV2Module } from '@/domain/notifications/v2/test.notification.repository.module';
 import type { DeleteAllSubscriptionsDto } from '@/domain/notifications/v2/entities/delete-all-subscriptions.dto.entity';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Notifications Controller V2 (Unit)', () => {
   let app: INestApplication<Server>;
   let safeConfigUrl: string;
   let jwtService: IJwtService;
   let networkService: jest.MockedObjectDeep<INetworkService>;
-<<<<<<< HEAD
-  let notificationsDatasource: jest.MockedObjectDeep<INotificationsDatasource>;
-=======
   let notificationsRepository: jest.MockedObjectDeep<INotificationsRepositoryV2>;
->>>>>>> origin/staging
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -96,32 +52,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         ...defaultConfiguration.features,
         auth: true,
         accounts: true,
-<<<<<<< HEAD
-        pushNotifications: true,
-      },
-    });
-
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(testConfiguration)],
-    })
-      .overrideModule(JWT_CONFIGURATION_MODULE)
-      .useModule(JwtConfigurationModule.register(jwtConfiguration))
-      .overrideModule(AccountsDatasourceModule)
-      .useModule(TestAccountsDataSourceModule)
-      .overrideModule(CounterfactualSafesDatasourceModule)
-      .useModule(TestCounterfactualSafesDataSourceModule)
-      .overrideModule(NotificationsDatasourceModule)
-      .useModule(TestNotificationsDatasourceModule)
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
-=======
       },
     });
 
@@ -146,7 +76,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         },
       ],
     });
->>>>>>> origin/staging
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
@@ -154,11 +83,7 @@ describe('Notifications Controller V2 (Unit)', () => {
     safeConfigUrl = configurationService.getOrThrow('safeConfig.baseUri');
     jwtService = moduleFixture.get<IJwtService>(IJwtService);
     networkService = moduleFixture.get(NetworkService);
-<<<<<<< HEAD
-    notificationsDatasource = moduleFixture.get(INotificationsDatasource);
-=======
     notificationsRepository = moduleFixture.get(INotificationsRepositoryV2);
->>>>>>> origin/staging
 
     app = await new TestAppProvider().provide(moduleFixture);
     await app.init();
@@ -194,39 +119,24 @@ describe('Notifications Controller V2 (Unit)', () => {
           const chain = chains[safe.chainId];
 
           if (url === `${safeConfigUrl}/api/v1/chains/${safe.chainId}`) {
-<<<<<<< HEAD
-            return Promise.resolve({ data: chain, status: 200 });
-=======
             return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
           }
           if (
             url === `${chain.transactionService}/api/v1/safes/${safe.address}`
           ) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: safeBuilder()
-                .with('address', safe.address)
-                .with('owners', [signerAddress])
-                .build(),
-=======
               data: rawify(
                 safeBuilder()
                   .with('address', safe.address)
                   .with('owners', [signerAddress])
                   .build(),
               ),
->>>>>>> origin/staging
               status: 200,
             });
           }
           if (url === `${chain.transactionService}/api/v2/delegates/`) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: pageBuilder().with('results', []).build(),
-=======
               data: rawify(pageBuilder().with('results', []).build()),
->>>>>>> origin/staging
               status: 200,
             });
           }
@@ -241,15 +151,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         .send(upsertSubscriptionsDto)
         .expect(201);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.upsertSubscriptions).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.upsertSubscriptions,
-      ).toHaveBeenNthCalledWith(1, {
-        signerAddress,
-=======
       expect(notificationsRepository.upsertSubscriptions).toHaveBeenCalledTimes(
         1,
       );
@@ -260,7 +161,6 @@ describe('Notifications Controller V2 (Unit)', () => {
           signer_address: signerAddress,
           chain_id: authPayloadDto.chain_id,
         },
->>>>>>> origin/staging
         upsertSubscriptionsDto,
       });
     });
@@ -290,36 +190,18 @@ describe('Notifications Controller V2 (Unit)', () => {
           const chain = chains[safe.chainId];
 
           if (url === `${safeConfigUrl}/api/v1/chains/${safe.chainId}`) {
-<<<<<<< HEAD
-            return Promise.resolve({ data: chain, status: 200 });
-=======
             return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
           }
           if (
             url === `${chain.transactionService}/api/v1/safes/${safe.address}`
           ) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: safeBuilder().with('address', safe.address).build(),
-=======
               data: rawify(safeBuilder().with('address', safe.address).build()),
->>>>>>> origin/staging
               status: 200,
             });
           }
           if (url === `${chain.transactionService}/api/v2/delegates/`) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: pageBuilder()
-                .with('results', [
-                  delegateBuilder()
-                    .with('delegate', signerAddress)
-                    .with('safe', safe.address)
-                    .build(),
-                ])
-                .build(),
-=======
               data: rawify(
                 pageBuilder()
                   .with('results', [
@@ -330,7 +212,6 @@ describe('Notifications Controller V2 (Unit)', () => {
                   ])
                   .build(),
               ),
->>>>>>> origin/staging
               status: 200,
             });
           }
@@ -345,15 +226,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         .send(upsertSubscriptionsDto)
         .expect(201);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.upsertSubscriptions).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.upsertSubscriptions,
-      ).toHaveBeenNthCalledWith(1, {
-        signerAddress,
-=======
       expect(notificationsRepository.upsertSubscriptions).toHaveBeenCalledTimes(
         1,
       );
@@ -364,7 +236,6 @@ describe('Notifications Controller V2 (Unit)', () => {
           signer_address: signerAddress,
           chain_id: authPayloadDto.chain_id,
         },
->>>>>>> origin/staging
         upsertSubscriptionsDto,
       });
     });
@@ -396,39 +267,24 @@ describe('Notifications Controller V2 (Unit)', () => {
           const chain = chains[safe.chainId];
 
           if (url === `${safeConfigUrl}/api/v1/chains/${safe.chainId}`) {
-<<<<<<< HEAD
-            return Promise.resolve({ data: chain, status: 200 });
-=======
             return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
           }
           if (
             url === `${chain.transactionService}/api/v1/safes/${safe.address}`
           ) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: safeBuilder()
-                .with('address', safe.address)
-                .with('owners', [signerAddress])
-                .build(),
-=======
               data: rawify(
                 safeBuilder()
                   .with('address', safe.address)
                   .with('owners', [signerAddress])
                   .build(),
               ),
->>>>>>> origin/staging
               status: 200,
             });
           }
           if (url === `${chain.transactionService}/api/v2/delegates/`) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: pageBuilder().with('results', []).build(),
-=======
               data: rawify(pageBuilder().with('results', []).build()),
->>>>>>> origin/staging
               status: 200,
             });
           }
@@ -443,15 +299,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         .send(upsertSubscriptionsDto)
         .expect(201);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.upsertSubscriptions).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.upsertSubscriptions,
-      ).toHaveBeenNthCalledWith(1, {
-        signerAddress,
-=======
       expect(notificationsRepository.upsertSubscriptions).toHaveBeenCalledTimes(
         1,
       );
@@ -462,7 +309,6 @@ describe('Notifications Controller V2 (Unit)', () => {
           signer_address: signerAddress,
           chain_id: authPayloadDto.chain_id,
         },
->>>>>>> origin/staging
         upsertSubscriptionsDto,
       });
     });
@@ -496,39 +342,24 @@ describe('Notifications Controller V2 (Unit)', () => {
           const chain = chains[safe.chainId];
 
           if (url === `${safeConfigUrl}/api/v1/chains/${safe.chainId}`) {
-<<<<<<< HEAD
-            return Promise.resolve({ data: chain, status: 200 });
-=======
             return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
           }
           if (
             url === `${chain.transactionService}/api/v1/safes/${safe.address}`
           ) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: safeBuilder()
-                .with('address', safe.address)
-                .with('owners', [signerAddress])
-                .build(),
-=======
               data: rawify(
                 safeBuilder()
                   .with('address', safe.address)
                   .with('owners', [signerAddress])
                   .build(),
               ),
->>>>>>> origin/staging
               status: 200,
             });
           }
           if (url === `${chain.transactionService}/api/v2/delegates/`) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: pageBuilder().with('results', []).build(),
-=======
               data: rawify(pageBuilder().with('results', []).build()),
->>>>>>> origin/staging
               status: 200,
             });
           }
@@ -598,39 +429,24 @@ describe('Notifications Controller V2 (Unit)', () => {
           const chain = chains[safe.chainId];
 
           if (url === `${safeConfigUrl}/api/v1/chains/${safe.chainId}`) {
-<<<<<<< HEAD
-            return Promise.resolve({ data: chain, status: 200 });
-=======
             return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
           }
           if (
             url === `${chain.transactionService}/api/v1/safes/${safe.address}`
           ) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: safeBuilder()
-                .with('address', safe.address)
-                .with('owners', [signerAddress])
-                .build(),
-=======
               data: rawify(
                 safeBuilder()
                   .with('address', safe.address)
                   .with('owners', [signerAddress])
                   .build(),
               ),
->>>>>>> origin/staging
               status: 200,
             });
           }
           if (url === `${chain.transactionService}/api/v2/delegates/`) {
             return Promise.resolve({
-<<<<<<< HEAD
-              data: pageBuilder().with('results', []).build(),
-=======
               data: rawify(pageBuilder().with('results', []).build()),
->>>>>>> origin/staging
               status: 200,
             });
           }
@@ -642,11 +458,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         new UnprocessableEntityException(),
         new NotFoundException(),
       ]);
-<<<<<<< HEAD
-      notificationsDatasource.upsertSubscriptions.mockRejectedValue(error);
-=======
       notificationsRepository.upsertSubscriptions.mockRejectedValue(error);
->>>>>>> origin/staging
 
       await request(app.getHttpServer())
         .post(`/v2/register/notifications`)
@@ -664,14 +476,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         const upsertSubscriptionsDto = upsertSubscriptionsDtoBuilder()
           .with(
             'safes',
-<<<<<<< HEAD
-            Array.from(
-              {
-                length: faker.number.int({ min: 1, max: 5 }),
-              },
-=======
             faker.helpers.multiple(
->>>>>>> origin/staging
               () => ({
                 chainId,
                 address: getAddress(faker.finance.ethereumAddress()),
@@ -679,12 +484,9 @@ describe('Notifications Controller V2 (Unit)', () => {
                   Object.values(NotificationType),
                 ),
               }),
-<<<<<<< HEAD
-=======
               {
                 count: { min: 1, max: 5 },
               },
->>>>>>> origin/staging
             ),
           )
           .build();
@@ -712,14 +514,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         const upsertSubscriptionsDto = upsertSubscriptionsDtoBuilder()
           .with(
             'safes',
-<<<<<<< HEAD
-            Array.from(
-              {
-                length: faker.number.int({ min: 1, max: 5 }),
-              },
-=======
             faker.helpers.multiple(
->>>>>>> origin/staging
               () => ({
                 chainId,
                 address: getAddress(faker.finance.ethereumAddress()),
@@ -727,12 +522,9 @@ describe('Notifications Controller V2 (Unit)', () => {
                   Object.values(NotificationType),
                 ),
               }),
-<<<<<<< HEAD
-=======
               {
                 count: { min: 1, max: 5 },
               },
->>>>>>> origin/staging
             ),
           )
           .build();
@@ -756,14 +548,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         const upsertSubscriptionsDto = upsertSubscriptionsDtoBuilder()
           .with(
             'safes',
-<<<<<<< HEAD
-            Array.from(
-              {
-                length: faker.number.int({ min: 1, max: 5 }),
-              },
-=======
             faker.helpers.multiple(
->>>>>>> origin/staging
               () => ({
                 chainId,
                 address: getAddress(faker.finance.ethereumAddress()),
@@ -771,12 +556,9 @@ describe('Notifications Controller V2 (Unit)', () => {
                   Object.values(NotificationType),
                 ),
               }),
-<<<<<<< HEAD
-=======
               {
                 count: { min: 1, max: 5 },
               },
->>>>>>> origin/staging
             ),
           )
           .build();
@@ -855,11 +637,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         .with('chain_id', chainId)
         .build();
       const accessToken = jwtService.sign(authPayloadDto);
-<<<<<<< HEAD
-      notificationsDatasource.getSafeSubscription.mockResolvedValue(
-=======
       notificationsRepository.getSafeSubscription.mockResolvedValue(
->>>>>>> origin/staging
         notificationTypes,
       );
 
@@ -871,15 +649,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         .expect(200)
         .expect(notificationTypes);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.getSafeSubscription).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.getSafeSubscription,
-      ).toHaveBeenNthCalledWith(1, {
-        signerAddress,
-=======
       expect(notificationsRepository.getSafeSubscription).toHaveBeenCalledTimes(
         1,
       );
@@ -887,7 +656,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         notificationsRepository.getSafeSubscription,
       ).toHaveBeenNthCalledWith(1, {
         authPayload: authPayloadDto,
->>>>>>> origin/staging
         deviceUuid,
         chainId,
         safeAddress,
@@ -907,11 +675,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         .with('chain_id', faker.string.numeric({ exclude: chainId }))
         .build();
       const accessToken = jwtService.sign(authPayloadDto);
-<<<<<<< HEAD
-      notificationsDatasource.getSafeSubscription.mockResolvedValue(
-=======
       notificationsRepository.getSafeSubscription.mockResolvedValue(
->>>>>>> origin/staging
         notificationTypes,
       );
 
@@ -923,15 +687,6 @@ describe('Notifications Controller V2 (Unit)', () => {
         .expect(200)
         .expect(notificationTypes);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.getSafeSubscription).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.getSafeSubscription,
-      ).toHaveBeenNthCalledWith(1, {
-        signerAddress,
-=======
       expect(notificationsRepository.getSafeSubscription).toHaveBeenCalledTimes(
         1,
       );
@@ -942,7 +697,6 @@ describe('Notifications Controller V2 (Unit)', () => {
           chain_id: authPayloadDto.chain_id,
           signer_address: authPayloadDto.signer_address,
         },
->>>>>>> origin/staging
         deviceUuid,
         chainId,
         safeAddress,
@@ -1010,11 +764,7 @@ describe('Notifications Controller V2 (Unit)', () => {
         .build();
       const accessToken = jwtService.sign(authPayloadDto);
       const error = new NotFoundException();
-<<<<<<< HEAD
-      notificationsDatasource.getSafeSubscription.mockRejectedValue(error);
-=======
       notificationsRepository.getSafeSubscription.mockRejectedValue(error);
->>>>>>> origin/staging
 
       await request(app.getHttpServer())
         .get(
@@ -1155,19 +905,11 @@ describe('Notifications Controller V2 (Unit)', () => {
         )
         .expect(200);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.deleteSubscription).toHaveBeenCalledTimes(
-        1,
-      );
-      expect(
-        notificationsDatasource.deleteSubscription,
-=======
       expect(notificationsRepository.deleteSubscription).toHaveBeenCalledTimes(
         1,
       );
       expect(
         notificationsRepository.deleteSubscription,
->>>>>>> origin/staging
       ).toHaveBeenNthCalledWith(1, {
         deviceUuid,
         chainId,
@@ -1227,11 +969,7 @@ describe('Notifications Controller V2 (Unit)', () => {
       const safeAddress = getAddress(faker.finance.ethereumAddress());
       const deviceUuid = faker.string.uuid();
       const error = new NotFoundException();
-<<<<<<< HEAD
-      notificationsDatasource.deleteSubscription.mockRejectedValue(error);
-=======
       notificationsRepository.deleteSubscription.mockRejectedValue(error);
->>>>>>> origin/staging
 
       await request(app.getHttpServer())
         .delete(
@@ -1244,8 +982,6 @@ describe('Notifications Controller V2 (Unit)', () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   describe('DELETE /v2/notifications/subscriptions', () => {
     it('Should delete all subscriptions successfully', async () => {
       const deleteAllSubscriptionsDto =
@@ -1386,7 +1122,6 @@ describe('Notifications Controller V2 (Unit)', () => {
     });
   });
 
->>>>>>> origin/staging
   describe('DELETE /v2/chains/:chainId/notifications/devices/:deviceUuid', () => {
     it('should delete the device', async () => {
       const chainId = faker.string.numeric();
@@ -1396,13 +1131,8 @@ describe('Notifications Controller V2 (Unit)', () => {
         .delete(`/v2/chains/${chainId}/notifications/devices/${deviceUuid}`)
         .expect(200);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.deleteDevice).toHaveBeenCalledTimes(1);
-      expect(notificationsDatasource.deleteDevice).toHaveBeenNthCalledWith(
-=======
       expect(notificationsRepository.deleteDevice).toHaveBeenCalledTimes(1);
       expect(notificationsRepository.deleteDevice).toHaveBeenNthCalledWith(
->>>>>>> origin/staging
         1,
         deviceUuid,
       );
@@ -1416,13 +1146,8 @@ describe('Notifications Controller V2 (Unit)', () => {
         .delete(`/v2/chains/${chainId}/notifications/devices/${deviceUuid}`)
         .expect(200);
 
-<<<<<<< HEAD
-      expect(notificationsDatasource.deleteDevice).toHaveBeenCalledTimes(1);
-      expect(notificationsDatasource.deleteDevice).toHaveBeenNthCalledWith(
-=======
       expect(notificationsRepository.deleteDevice).toHaveBeenCalledTimes(1);
       expect(notificationsRepository.deleteDevice).toHaveBeenNthCalledWith(
->>>>>>> origin/staging
         1,
         deviceUuid,
       );
@@ -1465,11 +1190,7 @@ describe('Notifications Controller V2 (Unit)', () => {
       const chainId = faker.string.numeric();
       const deviceUuid = faker.string.uuid();
       const error = new NotFoundException();
-<<<<<<< HEAD
-      notificationsDatasource.deleteDevice.mockRejectedValue(error);
-=======
       notificationsRepository.deleteDevice.mockRejectedValue(error);
->>>>>>> origin/staging
 
       await request(app.getHttpServer())
         .delete(`/v2/chains/${chainId}/notifications/devices/${deviceUuid}`)

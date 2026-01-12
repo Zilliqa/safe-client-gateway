@@ -21,13 +21,10 @@ import {
   calculateTimezoneOffset,
   convertToTimezone,
 } from '@/routes/transactions/helpers/timezone.helper';
-<<<<<<< HEAD
-=======
 import { EthereumTransaction } from '@/domain/safe/entities/ethereum-transaction.entity';
 import { AddressInfoHelper } from '@/routes/common/address-info/address-info.helper';
 import { DataDecoded } from '@/domain/data-decoder/v2/entities/data-decoded.entity';
 import { IDataDecoderRepository } from '@/domain/data-decoder/v2/data-decoder.repository.interface';
->>>>>>> origin/staging
 
 @Injectable()
 export class TransactionsHistoryMapper {
@@ -229,11 +226,7 @@ export class TransactionsHistoryMapper {
     transactions: Array<TransactionItem>,
     timezoneOffset: number,
     timezone?: string,
-<<<<<<< HEAD
-  ): TransactionItem[][] {
-=======
   ): Array<Array<TransactionItem>> {
->>>>>>> origin/staging
     const grouped = groupBy(transactions, ({ transaction }) => {
       // timestamp will always be defined for historical transactions
       const date = new Date(transaction.timestamp ?? 0);

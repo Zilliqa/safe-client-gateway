@@ -1,26 +1,10 @@
 import request from 'supertest';
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { IConfigurationService } from '@/config/configuration.service.interface';
-<<<<<<< HEAD
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { NetworkModule } from '@/datasources/network/network.module';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-=======
-import type { INetworkService } from '@/datasources/network/network.service.interface';
-import { NetworkService } from '@/datasources/network/network.service.interface';
->>>>>>> origin/staging
 import configuration from '@/config/entities/__tests__/configuration';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import { pageBuilder } from '@/domain/entities/__tests__/page.builder';

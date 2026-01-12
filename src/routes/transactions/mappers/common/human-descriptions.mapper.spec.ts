@@ -15,10 +15,7 @@ import { MAX_UINT256 } from '@/routes/transactions/constants';
 import { SafeAppInfo } from '@/routes/transactions/entities/safe-app-info.entity';
 import { HumanDescriptionMapper } from '@/routes/transactions/mappers/common/human-description.mapper';
 import type { SafeAppInfoMapper } from '@/routes/transactions/mappers/common/safe-app-info.mapper';
-<<<<<<< HEAD
-=======
 import { truncateAddress } from '@/domain/common/utils/utils';
->>>>>>> origin/staging
 
 const tokenRepository = jest.mocked({
   getToken: jest.fn(),

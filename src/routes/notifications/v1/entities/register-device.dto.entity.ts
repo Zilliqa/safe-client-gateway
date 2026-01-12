@@ -6,10 +6,7 @@ import {
 } from '@nestjs/swagger';
 import { DeviceType } from '@/domain/notifications/v1/entities/device.entity';
 import { SafeRegistration } from '@/routes/notifications/v1/entities/safe-registration.entity';
-<<<<<<< HEAD
-=======
 import type { UUID } from 'crypto';
->>>>>>> origin/staging
 
 @ApiExtraModels(SafeRegistration)
 export class RegisterDeviceDto {

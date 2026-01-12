@@ -1,11 +1,7 @@
 import { ChainsRepositoryModule } from '@/domain/chains/chains.repository.interface';
 import { ContractsRepositoryModule } from '@/domain/contracts/contracts.repository.interface';
-<<<<<<< HEAD
-import { DataDecodedRepositoryModule } from '@/domain/data-decoder/data-decoded.repository.interface';
-=======
 import { DataDecoderRepositoryModule } from '@/domain/data-decoder/v2/data-decoder.repository.module';
 import { EarnRepositoryModule } from '@/domain/earn/earn.repository.module';
->>>>>>> origin/staging
 import { HumanDescriptionRepositoryModule } from '@/domain/human-description/human-description.repository.interface';
 import { SafeAppsRepositoryModule } from '@/domain/safe-apps/safe-apps.repository.interface';
 import { SafeRepositoryModule } from '@/domain/safe/safe.repository.interface';
@@ -53,8 +49,6 @@ import { TransferMapper } from '@/routes/transactions/mappers/transfers/transfer
 import { TransactionsController } from '@/routes/transactions/transactions.controller';
 import { TransactionsService } from '@/routes/transactions/transactions.service';
 import { Module } from '@nestjs/common';
-<<<<<<< HEAD
-=======
 import { TransactionVerifierHelper } from '@/routes/transactions/helpers/transaction-verifier.helper';
 import { DelegatesV2RepositoryModule } from '@/domain/delegate/v2/delegates.v2.repository.interface';
 import { KilnVaultHelperModule } from '@/routes/transactions/helpers/kiln-vault.helper';
@@ -63,25 +57,18 @@ import { BridgeTransactionMapper } from '@/routes/transactions/mappers/common/br
 import { LiFiDecoderModule } from '@/domain/bridge/contracts/decoders/lifi-decoder.helper';
 import { LiFiHelperModule } from '@/routes/transactions/helpers/lifi-helper';
 import { BridgeRepositoryModule } from '@/domain/bridge/bridge.repository.module';
->>>>>>> origin/staging
 
 @Module({
   controllers: [TransactionsController],
   imports: [
     AddressInfoModule,
-<<<<<<< HEAD
-=======
     BridgeRepositoryModule,
->>>>>>> origin/staging
     ChainsRepositoryModule,
     ContractsRepositoryModule,
     DataDecoderRepositoryModule,
     DelegatesV2RepositoryModule,
     EarnRepositoryModule,
     GPv2DecoderModule,
-<<<<<<< HEAD
-    KilnNativeStakingHelperModule,
-=======
     HumanDescriptionRepositoryModule,
     KilnNativeStakingHelperModule,
     KilnVaultHelperModule,
@@ -89,7 +76,6 @@ import { BridgeRepositoryModule } from '@/domain/bridge/bridge.repository.module
     LiFiDecoderModule,
     SafeAppsRepositoryModule,
     SafeRepositoryModule,
->>>>>>> origin/staging
     StakingRepositoryModule,
     SwapAppsHelperModule,
     SwapOrderHelperModule,

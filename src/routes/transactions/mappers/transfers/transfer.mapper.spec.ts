@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import type { IConfigurationService } from '@/config/configuration.service.interface';
-=======
->>>>>>> origin/staging
 import { erc20TransferBuilder } from '@/domain/safe/entities/__tests__/erc20-transfer.builder';
 import { erc721TransferBuilder } from '@/domain/safe/entities/__tests__/erc721-transfer.builder';
 import { nativeTokenTransferBuilder } from '@/domain/safe/entities/__tests__/native-token-transfer.builder';
@@ -11,15 +7,10 @@ import {
   OrderKind,
   OrderStatus,
 } from '@/domain/swaps/entities/order.entity';
-<<<<<<< HEAD
-import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
-import { TokenType } from '@/domain/tokens/entities/token.entity';
-=======
 import {
   erc20TokenBuilder,
   erc721TokenBuilder,
 } from '@/domain/tokens/__tests__/token.builder';
->>>>>>> origin/staging
 import type { TokenRepository } from '@/domain/tokens/token.repository';
 import type { ILoggingService } from '@/logging/logging.interface';
 import type { AddressInfoHelper } from '@/routes/common/address-info/address-info.helper';
@@ -32,11 +23,7 @@ import {
   TransferDirection,
   TransferTransactionInfo,
 } from '@/routes/transactions/entities/transfer-transaction-info.entity';
-<<<<<<< HEAD
-import { TransferType } from '@/routes/transactions/entities/transfers/transfer.entity';
-=======
 import { Erc20Transfer } from '@/routes/transactions/entities/transfers/erc20-transfer.entity';
->>>>>>> origin/staging
 import type { SwapTransferInfoMapper } from '@/routes/transactions/mappers/transfers/swap-transfer-info.mapper';
 import { TransferInfoMapper } from '@/routes/transactions/mappers/transfers/transfer-info.mapper';
 import { TransferMapper } from '@/routes/transactions/mappers/transfers/transfer.mapper';

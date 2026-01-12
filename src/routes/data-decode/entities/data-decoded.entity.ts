@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded-parameter.entity';
-import { DataDecoded as DomainDataDecoded } from '@/domain/data-decoder/entities/data-decoded.entity';
-
-export class DataDecoded implements DomainDataDecoded {
-  @ApiProperty()
-  method: string;
-  @ApiPropertyOptional({
-    type: DataDecodedParameter,
-    isArray: true,
-    nullable: true,
-  })
-  parameters: DataDecodedParameter[] | null;
-=======
 import {
   ApiExtraModels,
   ApiProperty,
@@ -31,7 +16,6 @@ import { Operation } from '@/domain/safe/entities/operation.entity';
 class BaseDataDecoded implements DomainBaseDataDecoded {
   @ApiProperty()
   method!: string;
->>>>>>> origin/staging
 
   @ApiPropertyOptional({ type: () => DataDecodedParameter, isArray: true })
   parameters!: Array<DataDecodedParameter> | null;

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded-parameter.entity';
+import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded.entity';
 import { OrderInfo } from '@/routes/transactions/entities/swaps/swap-order-info.entity';
 import {
   OrderClass,
@@ -80,6 +80,17 @@ export class CowSwapConfirmationView implements Baseline, OrderInfo {
   })
   executedSurplusFee: string | null;
 
+  @ApiProperty({
+    type: String,
+    description: 'The amount of fees paid for this order.',
+  })
+  executedFee: string;
+
+  @ApiProperty({
+    description: 'The token in which the fee was paid.',
+  })
+  executedFeeToken: TokenInfo;
+
   @ApiPropertyOptional({
     type: String,
     nullable: true,
@@ -106,7 +117,7 @@ export class CowSwapConfirmationView implements Baseline, OrderInfo {
   buyToken: TokenInfo;
 
   constructor(
-    args: Baseline & OrderInfo & { sellToken: TokenInfo; buyToken: TokenInfo },
+    args: Baseline & OrderInfo & { sellToken: TokenInfo; buyToken: TokenInfo; executedSurplusFee?: string | null },
   ) {
     this.method = args.method;
     this.parameters = args.parameters;
@@ -120,7 +131,9 @@ export class CowSwapConfirmationView implements Baseline, OrderInfo {
     this.executedSellAmount = args.executedSellAmount;
     this.executedBuyAmount = args.executedBuyAmount;
     this.explorerUrl = args.explorerUrl;
-    this.executedSurplusFee = args.executedSurplusFee;
+    this.executedSurplusFee = args.executedSurplusFee ?? null;
+    this.executedFee = args.executedFee;
+    this.executedFeeToken = args.executedFeeToken;
     this.sellToken = args.sellToken;
     this.buyToken = args.buyToken;
     this.receiver = args.receiver;

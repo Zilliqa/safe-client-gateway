@@ -1,10 +1,5 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
@@ -30,17 +25,6 @@ import configuration from '@/config/entities/__tests__/configuration';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
-<<<<<<< HEAD
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
-import { getAddress } from 'viem';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import type { Server } from 'net';
-=======
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import { getAddress } from 'viem';
 import type { Server } from 'net';
@@ -55,7 +39,6 @@ import {
 } from '@/logging/logging.interface';
 import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Get by id - Transactions Controller (Unit)', () => {
   let app: INestApplication<Server>;

@@ -1,21 +1,9 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import configuration from '@/config/entities/__tests__/configuration';
-<<<<<<< HEAD
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-=======
->>>>>>> origin/staging
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
@@ -26,11 +14,6 @@ import {
   zerionNFTInfoBuilder,
 } from '@/datasources/balances-api/entities/__tests__/zerion-collectible.entity.builder';
 import { getAddress } from 'viem';
-<<<<<<< HEAD
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-=======
->>>>>>> origin/staging
 import type { Server } from 'net';
 import { balancesProviderBuilder } from '@/domain/chains/entities/__tests__/balances-provider.builder';
 import { rawify } from '@/validation/entities/raw.entity';

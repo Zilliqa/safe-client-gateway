@@ -1,22 +1,11 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-<<<<<<< HEAD
-import type { DataDecoded } from '@/domain/data-decoder/entities/data-decoded.entity';
-import { transactionDataDtoBuilder } from '@/routes/data-decode/entities/__tests__/transaction-data.dto.builder';
-import { CacheKeyPrefix } from '@/datasources/cache/constants';
-import type { Server } from 'net';
-=======
 import type { DataDecoded } from '@/domain/data-decoder/v2/entities/data-decoded.entity';
 import { transactionDataDtoBuilder } from '@/routes/data-decode/entities/__tests__/transaction-data.dto.builder';
 import type { Server } from 'net';
 import { createBaseTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Data decode e2e tests', () => {
   let app: INestApplication<Server>;

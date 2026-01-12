@@ -34,9 +34,6 @@ export class SettingsChangeTransaction extends TransactionInfo {
   override type = TransactionInfoType.SettingsChange;
   @ApiProperty()
   dataDecoded: DataDecoded;
-<<<<<<< HEAD
-  @ApiPropertyOptional({ type: SettingsChange, nullable: true })
-=======
   @ApiProperty({
     oneOf: [
       { $ref: getSchemaPath(AddOwner) },
@@ -51,7 +48,6 @@ export class SettingsChangeTransaction extends TransactionInfo {
       { $ref: getSchemaPath(SwapOwner) },
     ],
   })
->>>>>>> origin/staging
   settingsInfo: SettingsChange | null;
 
   constructor(

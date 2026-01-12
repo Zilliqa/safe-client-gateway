@@ -25,11 +25,7 @@ export class AccountsService {
   }): Promise<Account> {
     const domainAccount = await this.accountsRepository.createAccount({
       authPayload: args.authPayload,
-<<<<<<< HEAD
-      address: args.createAccountDto.address,
-=======
       createAccountDto: args.createAccountDto,
->>>>>>> origin/staging
       clientIp: args.clientIp,
     });
     return this.mapAccount(domainAccount);

@@ -10,66 +10,18 @@ import { ModuleExecutionInfo } from '@/routes/transactions/entities/module-execu
 import { MultisigExecutionInfo } from '@/routes/transactions/entities/multisig-execution-info.entity';
 import { SafeAppInfo } from '@/routes/transactions/entities/safe-app-info.entity';
 import { TransactionInfo } from '@/routes/transactions/entities/transaction-info.entity';
-<<<<<<< HEAD
-import { TransferTransactionInfo } from '@/routes/transactions/entities/transfer-transaction-info.entity';
-import { SwapOrderTransactionInfo } from '@/routes/transactions/entities/swaps/swap-order-info.entity';
-import { SwapTransferTransactionInfo } from '@/routes/transactions/swap-transfer-transaction-info.entity';
-import { TwapOrderTransactionInfo } from '@/routes/transactions/entities/swaps/twap-order-info.entity';
-import { NativeStakingDepositTransactionInfo } from '@/routes/transactions/entities/staking/native-staking-deposit-info.entity';
-import { NativeStakingValidatorsExitTransactionInfo } from '@/routes/transactions/entities/staking/native-staking-validators-exit-info.entity';
-import { NativeStakingWithdrawTransactionInfo } from '@/routes/transactions/entities/staking/native-staking-withdraw-info.entity';
-
-@ApiExtraModels(
-  CreationTransactionInfo,
-  CustomTransactionInfo,
-  SettingsChangeTransaction,
-  TransferTransactionInfo,
-  ModuleExecutionInfo,
-  MultisigExecutionInfo,
-  SwapOrderTransactionInfo,
-  SwapTransferTransactionInfo,
-  TwapOrderTransactionInfo,
-  NativeStakingDepositTransactionInfo,
-  NativeStakingValidatorsExitTransactionInfo,
-  NativeStakingWithdrawTransactionInfo,
-)
-export class Transaction {
-=======
 import { TransactionStatus } from '@/routes/transactions/entities/transaction-status.entity';
 
 @ApiExtraModels(ModuleExecutionInfo, MultisigExecutionInfo)
 export class Transaction extends BaseTransaction {
->>>>>>> origin/staging
   @ApiProperty()
   id: string;
   @ApiPropertyOptional({ type: String, nullable: true })
   txHash: `0x${string}` | null;
-<<<<<<< HEAD
-  @ApiPropertyOptional({ type: Number, nullable: true })
-  timestamp: number | null;
-  @ApiProperty()
-  txStatus: string;
-  @ApiProperty({
-    oneOf: [
-      { $ref: getSchemaPath(CreationTransactionInfo) },
-      { $ref: getSchemaPath(CustomTransactionInfo) },
-      { $ref: getSchemaPath(SettingsChangeTransaction) },
-      { $ref: getSchemaPath(SwapOrderTransactionInfo) },
-      { $ref: getSchemaPath(SwapTransferTransactionInfo) },
-      { $ref: getSchemaPath(TwapOrderTransactionInfo) },
-      { $ref: getSchemaPath(TransferTransactionInfo) },
-      { $ref: getSchemaPath(NativeStakingDepositTransactionInfo) },
-      { $ref: getSchemaPath(NativeStakingValidatorsExitTransactionInfo) },
-      { $ref: getSchemaPath(NativeStakingWithdrawTransactionInfo) },
-    ],
-  })
-  txInfo: TransactionInfo;
-=======
   @ApiProperty()
   timestamp: number;
   @ApiProperty({ enum: TransactionStatus })
   txStatus: string;
->>>>>>> origin/staging
   @ApiPropertyOptional({
     oneOf: [
       { $ref: getSchemaPath(MultisigExecutionInfo) },

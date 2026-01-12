@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded-parameter.entity';
+import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded.entity';
 import {
   OrderClass,
   OrderKind,
@@ -47,8 +47,8 @@ export class CowSwapTwapConfirmationView implements Baseline, TwapOrderInfo {
   @ApiProperty({
     description:
       'The order UID of the active order, null as it is not an active order',
-    // Prevent bidirectional dependency
-    type: typeof null,
+    type: String,
+    nullable: true,
   })
   activeOrderUid: null;
 
@@ -80,6 +80,19 @@ export class CowSwapTwapConfirmationView implements Baseline, TwapOrderInfo {
       'The executed surplus fee raw amount (no decimals), or null if there are too many parts',
   })
   executedSurplusFee: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description:
+      'The executed fee raw amount (no decimals), or null if there are too many parts',
+  })
+  executedFee: string | null;
+
+  @ApiProperty({
+    description: 'The token in which the fee was paid.',
+  })
+  executedFeeToken: TokenInfo;
 
   @ApiPropertyOptional({
     type: String,
@@ -155,6 +168,8 @@ export class CowSwapTwapConfirmationView implements Baseline, TwapOrderInfo {
     executedSellAmount: string | null;
     executedBuyAmount: string | null;
     executedSurplusFee: string | null;
+    executedFee: string | null;
+    executedFeeToken: TokenInfo;
     sellToken: TokenInfo;
     buyToken: TokenInfo;
     receiver: `0x${string}`;
@@ -179,6 +194,8 @@ export class CowSwapTwapConfirmationView implements Baseline, TwapOrderInfo {
     this.executedSellAmount = args.executedSellAmount;
     this.executedBuyAmount = args.executedBuyAmount;
     this.executedSurplusFee = args.executedSurplusFee;
+    this.executedFee = args.executedFee;
+    this.executedFeeToken = args.executedFeeToken;
     this.sellToken = args.sellToken;
     this.buyToken = args.buyToken;
     this.receiver = args.receiver;

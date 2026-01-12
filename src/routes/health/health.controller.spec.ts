@@ -1,29 +1,13 @@
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-=======
->>>>>>> origin/staging
 import configuration from '@/config/entities/__tests__/configuration';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import type { INestApplication } from '@nestjs/common';
 import { CacheService } from '@/datasources/cache/cache.service.interface';
 import type { FakeCacheService } from '@/datasources/cache/__tests__/fake.cache.service';
 import request from 'supertest';
-<<<<<<< HEAD
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import type { IQueueReadiness } from '@/domain/interfaces/queue-readiness.interface';
-import { QueueReadiness } from '@/domain/interfaces/queue-readiness.interface';
-import type { Server } from 'net';
-=======
 import type { IQueueReadiness } from '@/domain/interfaces/queue-readiness.interface';
 import { QueueReadiness } from '@/domain/interfaces/queue-readiness.interface';
 import type { Server } from 'net';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Health Controller tests', () => {
   let app: INestApplication<Server>;

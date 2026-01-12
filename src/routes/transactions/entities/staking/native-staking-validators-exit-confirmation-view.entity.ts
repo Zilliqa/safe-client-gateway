@@ -1,4 +1,4 @@
-import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded-parameter.entity';
+import { DataDecodedParameter } from '@/routes/data-decode/entities/data-decoded.entity';
 import {
   Baseline,
   DecodedType,

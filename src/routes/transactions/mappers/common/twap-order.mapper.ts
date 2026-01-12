@@ -91,44 +91,6 @@ export class TwapOrderMapper {
     // to avoid requesting too many orders
     const hasAbundantParts = twapParts.length > this.maxNumberOfParts;
 
-<<<<<<< HEAD
-    // Fetch all order parts if the transaction has been executed, otherwise none
-    const partsToFetch = transaction.executionDate
-      ? hasAbundantParts
-        ? // We use the last part (and only one) to get the amounts/fees of the entire
-          // order and we only need one to get the token info
-          twapParts.slice(-1)
-        : twapParts
-      : [];
-
-    const activePart = this.getActivePart({
-      twapParts,
-      executionDate: transaction.executionDate,
-    });
-
-    const activeOrderUid = activePart
-      ? this.gpv2OrderHelper.computeOrderUid({
-          chainId: chainId,
-          owner: safeAddress,
-          order: activePart,
-        })
-      : null;
-
-    const partOrders = await this.getPartOrders({
-      partsToFetch,
-      chainId,
-      safeAddress,
-    });
-
-    const status = await this.getOrderStatus({
-      chainId,
-      safeAddress,
-      twapParts,
-      partOrders,
-      activeOrderUid,
-      executionDate: transaction.executionDate,
-    });
-=======
     let partsToFetch: Array<GPv2OrderParameters>;
 
     // If the transaction is not executed, there are no parts to fetch
@@ -143,7 +105,6 @@ export class TwapOrderMapper {
         partsToFetch = twapParts.slice(-1);
       }
     }
->>>>>>> origin/staging
 
     const activePart = this.getActivePart({
       twapParts,
@@ -183,17 +144,10 @@ export class TwapOrderMapper {
         ? null
         : this.getExecutedBuyAmount(partOrders).toString();
 
-<<<<<<< HEAD
-    const executedSurplusFee: TwapOrderInfo['executedSurplusFee'] =
-      hasAbundantParts || !partOrders
-        ? null
-        : this.getExecutedSurplusFee(partOrders).toString();
-=======
     const executedFee: TwapOrderInfo['executedFee'] =
       hasAbundantParts || !partOrders
         ? null
         : this.getExecutedFee(partOrders).toString();
->>>>>>> origin/staging
 
     const [sellToken, buyToken] = await Promise.all([
       this.swapOrderHelper.getToken({

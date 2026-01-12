@@ -25,7 +25,7 @@ export enum StartTimeValue {
   AtEpoch = 'AT_EPOCH',
 }
 
-type DurationOfPart = DurationAuto | DurationLimit;
+export type DurationOfPart = DurationAuto | DurationLimit;
 
 export class DurationAuto {
   @ApiProperty({ enum: [DurationType.Auto] })
@@ -44,7 +44,7 @@ export class DurationLimit {
   }
 }
 
-type StartTime = StartTimeAtMining | StartTimeAtEpoch;
+export type StartTime = StartTimeAtMining | StartTimeAtEpoch;
 
 export class StartTimeAtMining {
   @ApiProperty({ enum: [StartTimeValue.AtMiningTime] })
@@ -153,10 +153,7 @@ export class TwapOrderTransactionInfo
 
   @ApiPropertyOptional({
     type: String,
-<<<<<<< HEAD
-=======
     // Nullable as TWAP may have too many parts, or is being previewed
->>>>>>> origin/staging
     nullable: true,
     description:
       'The executed surplus fee raw amount (no decimals), or null if there are too many parts',

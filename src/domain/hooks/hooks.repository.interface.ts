@@ -18,7 +18,7 @@ export interface IHooksRepository {
     QueuesRepositoryModule,
   ],
   providers: [
-    { provide: IHooksRepository, useClass: HooksRepositoryWithNotifications },
+    { provide: IHooksRepository, useClass: HooksRepository },
   ],
   exports: [IHooksRepository],
 })

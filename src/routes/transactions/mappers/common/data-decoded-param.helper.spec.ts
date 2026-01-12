@@ -1,16 +1,9 @@
 import { faker } from '@faker-js/faker';
-<<<<<<< HEAD
-import type {
-  DataDecoded,
-  DataDecodedParameter,
-} from '@/domain/data-decoder/entities/data-decoded.entity';
-=======
 import {
   DataDecodedAccuracy,
   type DataDecoded,
   type DataDecodedParameter,
 } from '@/domain/data-decoder/v2/entities/data-decoded.entity';
->>>>>>> origin/staging
 import { DataDecodedParamHelper } from '@/routes/transactions/mappers/common/data-decoded-param.helper';
 import { getAddress } from 'viem';
 

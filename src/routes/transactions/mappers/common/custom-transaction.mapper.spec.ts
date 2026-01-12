@@ -3,12 +3,8 @@ import { multisigTransactionBuilder } from '@/domain/safe/entities/__tests__/mul
 import {
   dataDecodedBuilder,
   dataDecodedParameterBuilder,
-<<<<<<< HEAD
-} from '@/domain/data-decoder/entities/__tests__/data-decoded.builder';
-=======
   multisendBuilder,
 } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
->>>>>>> origin/staging
 import type { AddressInfoHelper } from '@/routes/common/address-info/address-info.helper';
 import { NULL_ADDRESS } from '@/routes/common/constants';
 import { AddressInfo } from '@/routes/common/entities/address-info.entity';

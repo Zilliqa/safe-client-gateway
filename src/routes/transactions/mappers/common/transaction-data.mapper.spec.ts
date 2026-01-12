@@ -1,9 +1,5 @@
 import { faker } from '@faker-js/faker';
 import type { ContractsRepository } from '@/domain/contracts/contracts.repository';
-<<<<<<< HEAD
-import { contractBuilder } from '@/domain/contracts/entities/__tests__/contract.builder';
-=======
->>>>>>> origin/staging
 import {
   baseDataDecodedBuilder,
   dataDecodedBuilder,

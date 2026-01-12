@@ -1,28 +1,11 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD:src/routes/owners/owners.controller.spec.ts
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging:src/routes/owners/owners.controller.v1.spec.ts
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
-<<<<<<< HEAD:src/routes/owners/owners.controller.spec.ts
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
-import { getAddress } from 'viem';
-import { pageBuilder } from '@/domain/entities/__tests__/page.builder';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import type { Server } from 'net';
-=======
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
 import { getAddress } from 'viem';
 import {
@@ -33,7 +16,6 @@ import type { Server } from 'net';
 import { ChainsRepository } from '@/domain/chains/chains.repository';
 import { rawify } from '@/validation/entities/raw.entity';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging:src/routes/owners/owners.controller.v1.spec.ts
 
 describe('Owners Controller (Unit)', () => {
   let app: INestApplication<Server>;

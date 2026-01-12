@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import configuration from '@/config/entities/__tests__/configuration';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
@@ -44,11 +39,6 @@ import {
 } from '@/domain/common/utils/deployments';
 import { createProxyWithNonceEncoder } from '@/domain/relay/contracts/__tests__/encoders/proxy-factory-encoder.builder';
 import { getDeploymentVersionsByChainIds } from '@/__tests__/deployments.helper';
-<<<<<<< HEAD
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import type { Server } from 'net';
-=======
 import type { Server } from 'net';
 import {
   execTransactionFromModuleEncoder,
@@ -56,7 +46,6 @@ import {
 } from '@/domain/alerts/contracts/__tests__/encoders/delay-modifier-encoder.builder';
 import { rawify } from '@/validation/entities/raw.entity';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 const supportedChainIds = faker.helpers.arrayElements(
   Object.keys(configuration().relay.apiKey),

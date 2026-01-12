@@ -3,15 +3,9 @@ import { faker } from '@faker-js/faker/.';
 
 describe('EventTopicsSchema', () => {
   it('validate an EventTopicsSchema', () => {
-<<<<<<< HEAD
-    const eventTopics = Array.from(
-      { length: faker.number.int({ min: 1, max: 5 }) },
-      () => faker.string.hexadecimal() as `0x${string}`,
-=======
     const eventTopics = faker.helpers.multiple(
       () => faker.string.hexadecimal() as `0x${string}`,
       { count: { min: 1, max: 5 } },
->>>>>>> origin/staging
     );
 
     const result = EventTopicsSchema.safeParse(eventTopics);
@@ -35,30 +29,15 @@ describe('EventTopicsSchema', () => {
   });
 
   it('should not allow non-hex topics', () => {
-<<<<<<< HEAD
-    const topics = Array.from(
-      { length: faker.number.int({ min: 1, max: 5 }) },
-      () => faker.string.alpha() as `0x${string}`,
-=======
     const topics = faker.helpers.multiple(
       () => faker.string.alpha() as `0x${string}`,
       { count: { min: 1, max: 5 } },
->>>>>>> origin/staging
     );
 
     const result = EventTopicsSchema.safeParse(topics);
 
     expect(!result.success && result.error.issues.length).toBe(topics.length);
     expect(!result.success && result.error.issues).toStrictEqual(
-<<<<<<< HEAD
-      Array.from({ length: topics.length }, (_, i) => {
-        return {
-          code: 'custom',
-          message: 'Invalid "0x" notated hex string',
-          path: [i],
-        };
-      }),
-=======
       faker.helpers.multiple(
         (_, i) => {
           return {
@@ -69,7 +48,6 @@ describe('EventTopicsSchema', () => {
         },
         { count: topics.length },
       ),
->>>>>>> origin/staging
     );
   });
 

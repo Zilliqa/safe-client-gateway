@@ -46,12 +46,9 @@ import { DeleteTransactionDtoSchema } from '@/routes/transactions/entities/schem
 import { AddressSchema } from '@/validation/entities/schemas/address.schema';
 import { CreationTransaction } from '@/routes/transactions/entities/creation-transaction.entity';
 import { TimezoneSchema } from '@/validation/entities/schemas/timezone.schema';
-<<<<<<< HEAD
-=======
 import { TXSMultisigTransaction } from '@/routes/transactions/entities/txs-multisig-transaction.entity';
 import { TXSMultisigTransactionPage } from '@/routes/transactions/entities/txs-multisig-transaction-page.entity';
 import { TXSCreationTransaction } from '@/routes/transactions/entities/txs-creation-transaction.entity';
->>>>>>> origin/staging
 
 @ApiTags('transactions')
 @Controller({
@@ -428,8 +425,6 @@ export class TransactionsController {
       safeAddress,
     });
   }
-<<<<<<< HEAD
-=======
 
   @HttpCode(200)
   @ApiOkResponse({ type: TXSCreationTransaction })
@@ -445,5 +440,4 @@ export class TransactionsController {
       safeAddress,
     });
   }
->>>>>>> origin/staging
 }

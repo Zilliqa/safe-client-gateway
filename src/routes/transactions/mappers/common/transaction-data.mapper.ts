@@ -113,18 +113,11 @@ export class TransactionDataMapper {
 
     let isTrustedForDelegateCall: boolean;
     try {
-<<<<<<< HEAD
-      contract = await this.contractRepository.getContract({
-        chainId,
-        contractAddress: to,
-      });
-=======
       isTrustedForDelegateCall =
         await this.contractRepository.isTrustedForDelegateCall({
           chainId,
           contractAddress: to,
         });
->>>>>>> origin/staging
     } catch {
       return false;
     }

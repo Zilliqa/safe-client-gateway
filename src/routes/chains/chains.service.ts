@@ -3,6 +3,7 @@ import { IConfigurationService } from '@/config/configuration.service.interface'
 import { IBackboneRepository } from '@/domain/backbone/backbone.repository.interface';
 import { Backbone } from '@/domain/backbone/entities/backbone.entity';
 import { IChainsRepository } from '@/domain/chains/chains.repository.interface';
+import { IBlockchainApiManager } from '@/domain/interfaces/blockchain-api.manager.interface';
 import { MasterCopy } from '@/routes/chains/entities/master-copy.entity';
 import { Page } from '@/domain/entities/page.entity';
 import { AboutChain } from '@/routes/chains/entities/about-chain.entity';
@@ -12,10 +13,6 @@ import {
   cursorUrlFromLimitAndOffset,
 } from '@/routes/common/pagination/pagination.data';
 import { IndexingStatus } from '@/routes/chains/entities/indexing-status.entity';
-<<<<<<< HEAD
-import { IBlockchainApiManager } from '@/domain/interfaces/blockchain-api.manager.interface';
-=======
->>>>>>> origin/staging
 
 @Injectable()
 export class ChainsService {
@@ -43,33 +40,7 @@ export class ChainsService {
     const previousURL = cursorUrlFromLimitAndOffset(routeUrl, result.previous);
 
     const chains = result.results.map((chain) => {
-<<<<<<< HEAD
-      return new Chain({
-        chainId: chain.chainId,
-        chainName: chain.chainName,
-        description: chain.description,
-        l2: chain.l2,
-        nativeCurrency: chain.nativeCurrency,
-        transactionService: chain.transactionService,
-        blockExplorerUriTemplate: chain.blockExplorerUriTemplate,
-        beaconChainExplorerUriTemplate: chain.beaconChainExplorerUriTemplate,
-        disabledWallets: chain.disabledWallets,
-        features: chain.features,
-        gasPrice: chain.gasPrice,
-        publicRpcUri: chain.publicRpcUri,
-        rpcUri: chain.rpcUri,
-        safeAppsRpcUri: chain.safeAppsRpcUri,
-        shortName: chain.shortName,
-        theme: chain.theme,
-        ensRegistryAddress: chain.ensRegistryAddress,
-        isTestnet: chain.isTestnet,
-        chainLogoUri: chain.chainLogoUri,
-        balancesProvider: chain.balancesProvider,
-        contractAddresses: chain.contractAddresses,
-      });
-=======
       return new Chain(chain);
->>>>>>> origin/staging
     });
 
     return {
@@ -82,33 +53,7 @@ export class ChainsService {
 
   async getChain(chainId: string): Promise<Chain> {
     const result = await this.chainsRepository.getChain(chainId);
-<<<<<<< HEAD
-    return new Chain({
-      chainId: result.chainId,
-      chainName: result.chainName,
-      description: result.description,
-      l2: result.l2,
-      nativeCurrency: result.nativeCurrency,
-      transactionService: result.transactionService,
-      blockExplorerUriTemplate: result.blockExplorerUriTemplate,
-      beaconChainExplorerUriTemplate: result.beaconChainExplorerUriTemplate,
-      disabledWallets: result.disabledWallets,
-      features: result.features,
-      gasPrice: result.gasPrice,
-      publicRpcUri: result.publicRpcUri,
-      rpcUri: result.rpcUri,
-      safeAppsRpcUri: result.safeAppsRpcUri,
-      shortName: result.shortName,
-      theme: result.theme,
-      ensRegistryAddress: result.ensRegistryAddress,
-      isTestnet: result.isTestnet,
-      chainLogoUri: result.chainLogoUri,
-      balancesProvider: result.balancesProvider,
-      contractAddresses: result.contractAddresses,
-    });
-=======
     return new Chain(result);
->>>>>>> origin/staging
   }
 
   async getAboutChain(chainId: string): Promise<AboutChain> {
@@ -136,23 +81,6 @@ export class ChainsService {
   }
 
   async getIndexingStatus(chainId: string): Promise<IndexingStatus> {
-<<<<<<< HEAD
-    const [indexingStatus, blockchainApi] = await Promise.all([
-      this.chainsRepository.getIndexingStatus(chainId),
-      this.blockchainApiManager.getApi(chainId),
-    ]);
-
-    const lastSyncedBlock = Math.min(
-      indexingStatus.erc20BlockNumber,
-      indexingStatus.masterCopiesBlockNumber,
-    );
-    const block = await blockchainApi.getBlock({
-      blockNumber: BigInt(lastSyncedBlock),
-    });
-
-    return new IndexingStatus({
-      lastSync: Number(block.timestamp),
-=======
     const indexingStatus =
       await this.chainsRepository.getIndexingStatus(chainId);
 
@@ -163,7 +91,6 @@ export class ChainsService {
 
     return new IndexingStatus({
       lastSync,
->>>>>>> origin/staging
       synced: indexingStatus.synced,
     });
   }

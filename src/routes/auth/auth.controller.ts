@@ -14,11 +14,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-<<<<<<< HEAD
-import { Response } from 'express';
-=======
 import { CookieOptions, Response } from 'express';
->>>>>>> origin/staging
 
 /**
  * The AuthController is responsible for handling authentication:

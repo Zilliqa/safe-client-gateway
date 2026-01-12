@@ -59,23 +59,6 @@ export class AuthService {
       },
     );
 
-<<<<<<< HEAD
-    const payload = AuthPayloadDtoSchema.parse({
-      chain_id: chainId?.toString(),
-      signer_address: address,
-    });
-
-    const accessToken = this.authRepository.signToken(payload, {
-      ...(notBefore && {
-        nbf: new Date(notBefore),
-      }),
-      exp: expirationTime
-        ? new Date(expirationTime)
-        : this.siweRepository.getMaxValidityDate(),
-    });
-
-=======
->>>>>>> origin/staging
     return {
       accessToken,
     };

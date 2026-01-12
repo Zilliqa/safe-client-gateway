@@ -1,18 +1,9 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
-<<<<<<< HEAD
-import { NetworkModule } from '@/datasources/network/network.module';
-=======
->>>>>>> origin/staging
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { backboneBuilder } from '@/domain/backbone/entities/__tests__/backbone.builder';
@@ -23,23 +14,6 @@ import type { Chain } from '@/domain/chains/entities/chain.entity';
 import type { Singleton } from '@/domain/chains/entities/singleton.entity';
 import type { MasterCopy } from '@/routes/chains/entities/master-copy.entity';
 import type { Page } from '@/domain/entities/page.entity';
-<<<<<<< HEAD
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { PaginationData } from '@/routes/common/pagination/pagination.data';
-import type { GetBlockReturnType } from 'viem';
-import { getAddress, HttpRequestError } from 'viem';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import type { Server } from 'net';
-import { indexingStatusBuilder } from '@/domain/chains/entities/__tests__/indexing-status.builder';
-import {
-  BlockchainApiManagerModule,
-  IBlockchainApiManager,
-} from '@/domain/interfaces/blockchain-api.manager.interface';
-import { TestBlockchainApiManagerModule } from '@/datasources/blockchain/__tests__/test.blockchain-api.manager';
-import type { FakeBlockchainApiManager } from '@/datasources/blockchain/__tests__/fake.blockchain-api.manager';
-=======
 import { PaginationData } from '@/routes/common/pagination/pagination.data';
 import { getAddress } from 'viem';
 import type { Server } from 'net';
@@ -48,7 +22,6 @@ import { BlockchainApiManagerModule } from '@/domain/interfaces/blockchain-api.m
 import { TestBlockchainApiManagerModule } from '@/datasources/blockchain/__tests__/test.blockchain-api.manager';
 import { rawify } from '@/validation/entities/raw.entity';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 const mockGetBlock = jest.fn();
 describe('Chains Controller (Unit)', () => {
@@ -74,22 +47,6 @@ describe('Chains Controller (Unit)', () => {
   beforeEach(async () => {
     jest.resetAllMocks();
 
-<<<<<<< HEAD
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(configuration)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .overrideModule(BlockchainApiManagerModule)
-      .useModule(TestBlockchainApiManagerModule)
-      .compile();
-=======
     const moduleFixture = await createTestModule({
       modules: [
         {
@@ -98,7 +55,6 @@ describe('Chains Controller (Unit)', () => {
         },
       ],
     });
->>>>>>> origin/staging
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
@@ -235,107 +191,11 @@ describe('Chains Controller (Unit)', () => {
 
     it('should exclude items not passing validation', async () => {
       const invalidChains = [{ invalid: 'item' }];
-<<<<<<< HEAD
-      networkService.get.mockResolvedValueOnce({
-        data: {
-          ...chainsResponse,
-          // Ensure count does not include invalid chains
-          count: chainsResponse.results.length + invalidChains.length,
-          results: [...chainsResponse.results, ...invalidChains],
-        },
-        status: 200,
-      });
-
-      await request(app.getHttpServer())
-        .get('/v1/chains')
-        .expect(200)
-        .expect({
-          count: chainsResponse.count,
-          next: chainsResponse.next,
-          previous: chainsResponse.previous,
-          results: [
-            {
-              chainId: chainsResponse.results[0].chainId,
-              chainName: chainsResponse.results[0].chainName,
-              description: chainsResponse.results[0].description,
-              chainLogoUri: chainsResponse.results[0].chainLogoUri,
-              l2: chainsResponse.results[0].l2,
-              isTestnet: chainsResponse.results[0].isTestnet,
-              shortName: chainsResponse.results[0].shortName,
-              rpcUri: chainsResponse.results[0].rpcUri,
-              safeAppsRpcUri: chainsResponse.results[0].safeAppsRpcUri,
-              publicRpcUri: chainsResponse.results[0].publicRpcUri,
-              blockExplorerUriTemplate:
-                chainsResponse.results[0].blockExplorerUriTemplate,
-              beaconChainExplorerUriTemplate:
-                chainsResponse.results[0].beaconChainExplorerUriTemplate,
-              nativeCurrency: chainsResponse.results[0].nativeCurrency,
-              transactionService: chainsResponse.results[0].transactionService,
-              theme: chainsResponse.results[0].theme,
-              gasPrice: chainsResponse.results[0].gasPrice,
-              ensRegistryAddress: getAddress(
-                chainsResponse.results[0].ensRegistryAddress!,
-              ),
-              disabledWallets: chainsResponse.results[0].disabledWallets,
-              features: chainsResponse.results[0].features,
-              balancesProvider: chainsResponse.results[0].balancesProvider,
-              contractAddresses: chainsResponse.results[0].contractAddresses,
-            },
-            {
-              chainId: chainsResponse.results[1].chainId,
-              chainName: chainsResponse.results[1].chainName,
-              description: chainsResponse.results[1].description,
-              chainLogoUri: chainsResponse.results[1].chainLogoUri,
-              l2: chainsResponse.results[1].l2,
-              isTestnet: chainsResponse.results[1].isTestnet,
-              shortName: chainsResponse.results[1].shortName,
-              rpcUri: chainsResponse.results[1].rpcUri,
-              safeAppsRpcUri: chainsResponse.results[1].safeAppsRpcUri,
-              publicRpcUri: chainsResponse.results[1].publicRpcUri,
-              blockExplorerUriTemplate:
-                chainsResponse.results[1].blockExplorerUriTemplate,
-              beaconChainExplorerUriTemplate:
-                chainsResponse.results[1].beaconChainExplorerUriTemplate,
-              nativeCurrency: chainsResponse.results[1].nativeCurrency,
-              transactionService: chainsResponse.results[1].transactionService,
-              theme: chainsResponse.results[1].theme,
-              gasPrice: chainsResponse.results[1].gasPrice,
-              ensRegistryAddress: getAddress(
-                chainsResponse.results[1].ensRegistryAddress!,
-              ),
-              disabledWallets: chainsResponse.results[1].disabledWallets,
-              features: chainsResponse.results[1].features,
-              balancesProvider: chainsResponse.results[1].balancesProvider,
-              contractAddresses: chainsResponse.results[1].contractAddresses,
-            },
-          ],
-        });
-
-      expect(networkService.get).toHaveBeenCalledTimes(1);
-      expect(networkService.get).toHaveBeenCalledWith({
-        url: `${safeConfigUrl}/api/v1/chains`,
-        networkRequest: {
-          params: {
-            limit: PaginationData.DEFAULT_LIMIT,
-            offset: PaginationData.DEFAULT_OFFSET,
-          },
-        },
-      });
-    });
-
-    it('Failure: received data is not valid', async () => {
-=======
->>>>>>> origin/staging
       networkService.get.mockResolvedValueOnce({
         data: rawify({
           ...chainsResponse,
-<<<<<<< HEAD
-          count: chainsResponse.count?.toString(),
-        },
-=======
           results: [...chainsResponse.results, ...invalidChains],
         }),
->>>>>>> origin/staging
         status: 200,
       });
 
@@ -430,14 +290,11 @@ describe('Chains Controller (Unit)', () => {
         }),
         status: 200,
       });
-<<<<<<< HEAD
-=======
 
       await request(app.getHttpServer())
         .get('/v1/chains')
         .expect(502)
         .expect({ statusCode: 502, message: 'Bad gateway' });
->>>>>>> origin/staging
       expect(networkService.get).toHaveBeenCalledTimes(1);
       expect(networkService.get).toHaveBeenCalledWith({
         url: `${safeConfigUrl}/api/v1/chains`,

@@ -2,12 +2,9 @@ import { faker } from '@faker-js/faker';
 import type { IBuilder } from '@/__tests__/builder';
 import { Builder } from '@/__tests__/builder';
 import type { CreateMessageDto } from '@/routes/messages/entities/create-message.dto.entity';
-<<<<<<< HEAD
-=======
 import { fakeJson } from '@/__tests__/faker';
 
 const SIGNATURE_LENGTH = 130;
->>>>>>> origin/staging
 
 export function createMessageDtoBuilder(): IBuilder<CreateMessageDto> {
   return new Builder<CreateMessageDto>()

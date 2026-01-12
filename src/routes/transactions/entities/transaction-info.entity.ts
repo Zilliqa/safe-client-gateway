@@ -14,14 +14,8 @@ export enum TransactionInfoType {
   SwapTransfer = 'SwapTransfer',
   Transfer = 'Transfer',
   TwapOrder = 'TwapOrder',
-<<<<<<< HEAD
-  NativeStakingDeposit = 'NativeStakingDeposit',
-  NativeStakingValidatorsExit = 'NativeStakingValidatorsExit',
-  NativeStakingWithdraw = 'NativeStakingWithdraw',
-=======
   VaultDeposit = 'VaultDeposit',
   VaultRedeem = 'VaultRedeem',
->>>>>>> origin/staging
 }
 
 export class TransactionInfo {

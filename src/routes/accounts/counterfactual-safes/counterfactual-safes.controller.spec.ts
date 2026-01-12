@@ -1,25 +1,4 @@
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-<<<<<<< HEAD
-import { checkGuardIsApplied } from '@/__tests__/util/check-guard';
-import { AppModule } from '@/app.module';
-import configuration from '@/config/entities/__tests__/configuration';
-import { TestAccountsDataSourceModule } from '@/datasources/accounts/__tests__/test.accounts.datasource.module';
-import { AccountsDatasourceModule } from '@/datasources/accounts/accounts.datasource.module';
-import { TestCounterfactualSafesDataSourceModule } from '@/datasources/accounts/counterfactual-safes/__tests__/test.counterfactual-safes.datasource.module';
-import { CounterfactualSafesDatasourceModule } from '@/datasources/accounts/counterfactual-safes/counterfactual-safes.datasource.module';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import jwtConfiguration from '@/datasources/jwt/configuration/__tests__/jwt.configuration';
-import {
-  JWT_CONFIGURATION_MODULE,
-  JwtConfigurationModule,
-} from '@/datasources/jwt/configuration/jwt.configuration.module';
-import { IJwtService } from '@/datasources/jwt/jwt.service.interface';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-=======
 import { createTestModule } from '@/__tests__/testing-module';
 import { checkGuardIsApplied } from '@/__tests__/util/check-guard';
 import configuration from '@/config/entities/__tests__/configuration';
@@ -30,7 +9,6 @@ import { AddressBooksDatasourceModule } from '@/datasources/accounts/address-boo
 import { TestCounterfactualSafesDataSourceModule } from '@/datasources/accounts/counterfactual-safes/__tests__/test.counterfactual-safes.datasource.module';
 import { CounterfactualSafesDatasourceModule } from '@/datasources/accounts/counterfactual-safes/counterfactual-safes.datasource.module';
 import { IJwtService } from '@/datasources/jwt/jwt.service.interface';
->>>>>>> origin/staging
 import type { IAccountsRepository } from '@/domain/accounts/accounts.repository.interface';
 import { counterfactualSafeBuilder } from '@/domain/accounts/counterfactual-safes/entities/__tests__/counterfactual-safe.builder';
 import { createCounterfactualSafeDtoBuilder } from '@/domain/accounts/counterfactual-safes/entities/__tests__/create-counterfactual-safe.dto.entity.builder';
@@ -42,21 +20,11 @@ import { authPayloadDtoBuilder } from '@/domain/auth/entities/__tests__/auth-pay
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import { IAccountsDatasource } from '@/domain/interfaces/accounts.datasource.interface';
 import { ICounterfactualSafesDatasource } from '@/domain/interfaces/counterfactual-safes.datasource.interface';
-<<<<<<< HEAD
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-=======
->>>>>>> origin/staging
 import { CounterfactualSafesController } from '@/routes/accounts/counterfactual-safes/counterfactual-safes.controller';
 import { AuthGuard } from '@/routes/auth/guards/auth.guard';
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import type { Server } from 'http';
 import request from 'supertest';
 import { getAddress } from 'viem';
@@ -67,12 +35,8 @@ describe('CounterfactualSafesController', () => {
   let accountsRepository: jest.MockedObjectDeep<IAccountsRepository>;
   let counterfactualSafesDataSource: jest.MockedObjectDeep<ICounterfactualSafesDatasource>;
 
-<<<<<<< HEAD
-  beforeAll(async () => {
-=======
   beforeEach(async () => {
     jest.resetAllMocks();
->>>>>>> origin/staging
     const defaultConfiguration = configuration();
     const testConfiguration = (): typeof defaultConfiguration => ({
       ...defaultConfiguration,
@@ -83,26 +47,6 @@ describe('CounterfactualSafesController', () => {
       },
     });
 
-<<<<<<< HEAD
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(testConfiguration)],
-    })
-      .overrideModule(JWT_CONFIGURATION_MODULE)
-      .useModule(JwtConfigurationModule.register(jwtConfiguration))
-      .overrideModule(AccountsDatasourceModule)
-      .useModule(TestAccountsDataSourceModule)
-      .overrideModule(CounterfactualSafesDatasourceModule)
-      .useModule(TestCounterfactualSafesDataSourceModule)
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
-=======
     const moduleFixture = await createTestModule({
       config: testConfiguration,
       modules: [
@@ -125,7 +69,6 @@ describe('CounterfactualSafesController', () => {
       ],
     });
 
->>>>>>> origin/staging
     jwtService = moduleFixture.get<IJwtService>(IJwtService);
     accountsRepository = moduleFixture.get(IAccountsDatasource);
     counterfactualSafesDataSource = moduleFixture.get(
@@ -136,13 +79,6 @@ describe('CounterfactualSafesController', () => {
     await app.init();
   });
 
-<<<<<<< HEAD
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-=======
->>>>>>> origin/staging
   afterAll(async () => {
     await app.close();
   });
@@ -222,15 +158,9 @@ describe('CounterfactualSafesController', () => {
   describe('Get Counterfactual Safes', () => {
     it('should return all the Counterfactual Safes associated with the account address', async () => {
       const address = getAddress(faker.finance.ethereumAddress());
-<<<<<<< HEAD
-      const counterfactualSafes = Array.from(
-        { length: faker.number.int({ min: 1, max: 4 }) },
-        () => counterfactualSafeBuilder().build(),
-=======
       const counterfactualSafes = faker.helpers.multiple(
         () => counterfactualSafeBuilder().build(),
         { count: { min: 1, max: 4 } },
->>>>>>> origin/staging
       );
       counterfactualSafesDataSource.getCounterfactualSafesForAddress.mockResolvedValue(
         counterfactualSafes,

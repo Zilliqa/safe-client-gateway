@@ -6,11 +6,7 @@ import {
 } from '@/domain/chains/chains.repository.interface';
 import { getNumberString } from '@/domain/common/utils/utils';
 import { KilnDecoder } from '@/domain/staking/contracts/decoders/kiln-decoder.helper';
-<<<<<<< HEAD
-import { IStakingRepository } from '@/domain/staking/staking.repository.interface';
-=======
 import { IStakingRepositoryWithRewardsFee } from '@/domain/staking/staking.repository.interface';
->>>>>>> origin/staging
 import { StakingRepositoryModule } from '@/domain/staking/staking.repository.module';
 import { ILoggingService, LoggingService } from '@/logging/logging.interface';
 import { NULL_ADDRESS } from '@/routes/common/constants';
@@ -30,13 +26,8 @@ export class NativeStakingMapper {
   private static readonly ETH_ETHERS_PER_VALIDATOR = 32;
 
   constructor(
-<<<<<<< HEAD
-    @Inject(IStakingRepository)
-    private readonly stakingRepository: IStakingRepository,
-=======
     @Inject(IStakingRepositoryWithRewardsFee)
     private readonly stakingRepository: IStakingRepositoryWithRewardsFee,
->>>>>>> origin/staging
     @Inject(IChainsRepository)
     private readonly chainsRepository: IChainsRepository,
     private readonly kilnDecoder: KilnDecoder,
@@ -61,23 +52,16 @@ export class NativeStakingMapper {
     value: string | null;
     txHash: `0x${string}` | null;
   }): Promise<NativeStakingDepositTransactionInfo> {
-<<<<<<< HEAD
-    const [chain, deployment] = await Promise.all([
-=======
     const [chain, deployment, rewardsFee] = await Promise.all([
->>>>>>> origin/staging
       this.chainsRepository.getChain(args.chainId),
       this.stakingRepository.getDeployment({
         chainId: args.chainId,
         address: args.to,
       }),
-<<<<<<< HEAD
-=======
       this.stakingRepository.getRewardsFee({
         chainId: args.chainId,
         address: args.to,
       }),
->>>>>>> origin/staging
     ]);
     this.validateDeployment(deployment);
 
@@ -98,11 +82,7 @@ export class NativeStakingMapper {
         Math.pow(10, chain.nativeCurrency.decimals) /
         NativeStakingMapper.ETH_ETHERS_PER_VALIDATOR,
     );
-<<<<<<< HEAD
-    const fee = deployment.product_fee ? Number(deployment.product_fee) : 0;
-=======
     const fee = rewardsFee.fee ?? 0;
->>>>>>> origin/staging
     // NRR = GRR * (1 - service_fees)
     // Kiln also uses last_30d field, with product_fee
     const nrr = nativeStakingStats.gross_apy.last_30d * (1 - fee);
@@ -205,11 +185,7 @@ export class NativeStakingMapper {
     ]);
     this.validateDeployment(deployment);
     const publicKeys = this.kilnNativeStakingHelper.splitPublicKeys(
-<<<<<<< HEAD
-      this.kilnDecoder.decodeValidatorsExit(args.data)!.parameters[0].value,
-=======
       this.kilnDecoder.decodeValidatorsExit(args.data)!,
->>>>>>> origin/staging
     );
 
     const value =
@@ -273,11 +249,7 @@ export class NativeStakingMapper {
     this.validateDeployment(deployment);
 
     const publicKeys = this.kilnNativeStakingHelper.splitPublicKeys(
-<<<<<<< HEAD
-      this.kilnDecoder.decodeBatchWithdrawCLFee(args.data)!.parameters[0].value,
-=======
       this.kilnDecoder.decodeBatchWithdrawCLFee(args.data)!,
->>>>>>> origin/staging
     );
     const value = await this.getWithdrawValue({
       txHash: args.txHash,

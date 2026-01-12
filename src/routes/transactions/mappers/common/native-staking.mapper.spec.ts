@@ -4,10 +4,7 @@ import {
 } from '@/datasources/staking-api/entities/__tests__/dedicated-staking-stats.entity.builder';
 import { deploymentBuilder } from '@/datasources/staking-api/entities/__tests__/deployment.entity.builder';
 import { networkStatsBuilder } from '@/datasources/staking-api/entities/__tests__/network-stats.entity.builder';
-<<<<<<< HEAD
-=======
 import { rewardsFeeBuilder } from '@/datasources/staking-api/entities/__tests__/rewards-fee.entity.builder';
->>>>>>> origin/staging
 import { stakeBuilder } from '@/datasources/staking-api/entities/__tests__/stake.entity.builder';
 import {
   transactionStatusBuilder,
@@ -38,10 +35,7 @@ import { concat, getAddress } from 'viem';
 
 const mockStakingRepository = jest.mocked({
   getDeployment: jest.fn(),
-<<<<<<< HEAD
-=======
   getRewardsFee: jest.fn(),
->>>>>>> origin/staging
   getDedicatedStakingStats: jest.fn(),
   getNetworkStats: jest.fn(),
   getStakes: jest.fn(),
@@ -104,24 +98,14 @@ describe('NativeStakingMapper', () => {
   describe('mapDepositInfo', () => {
     it('should map a proposed native staking deposit info', async () => {
       const chain = chainBuilder().build();
-<<<<<<< HEAD
-      const productFee = '0.5';
-      const deployment = deploymentBuilder()
-        .with('product_type', 'dedicated')
-        .with('product_fee', productFee)
-=======
       const productFee = 0.5;
       const deployment = deploymentBuilder()
         .with('product_type', 'dedicated')
->>>>>>> origin/staging
         .build();
       const networkStats = networkStatsBuilder()
         .with('eth_price_usd', 10_000)
         .build();
-<<<<<<< HEAD
-=======
       const rewardsFee = rewardsFeeBuilder().with('fee', productFee).build();
->>>>>>> origin/staging
       const dedicatedStakingStats = dedicatedStakingStatsBuilder()
         .with(
           'gross_apy',
@@ -131,10 +115,7 @@ describe('NativeStakingMapper', () => {
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-<<<<<<< HEAD
-=======
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -178,24 +159,14 @@ describe('NativeStakingMapper', () => {
 
     it('should map a queued native staking deposit info', async () => {
       const chain = chainBuilder().build();
-<<<<<<< HEAD
-      const productFee = '0.5';
-      const deployment = deploymentBuilder()
-        .with('product_type', 'dedicated')
-        .with('product_fee', productFee)
-=======
       const productFee = 0.5;
       const deployment = deploymentBuilder()
         .with('product_type', 'dedicated')
->>>>>>> origin/staging
         .build();
       const networkStats = networkStatsBuilder()
         .with('eth_price_usd', 10_000)
         .build();
-<<<<<<< HEAD
-=======
       const rewardsFee = rewardsFeeBuilder().with('fee', productFee).build();
->>>>>>> origin/staging
       const dedicatedStakingStats = dedicatedStakingStatsBuilder()
         .with(
           'gross_apy',
@@ -205,10 +176,7 @@ describe('NativeStakingMapper', () => {
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-<<<<<<< HEAD
-=======
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -253,24 +221,14 @@ describe('NativeStakingMapper', () => {
 
     it('should map a native staking deposit info', async () => {
       const chain = chainBuilder().build();
-<<<<<<< HEAD
-      const productFee = '0.5';
-      const deployment = deploymentBuilder()
-        .with('product_type', 'dedicated')
-        .with('product_fee', productFee)
-=======
       const productFee = 0.5;
       const deployment = deploymentBuilder()
         .with('product_type', 'dedicated')
->>>>>>> origin/staging
         .build();
       const networkStats = networkStatsBuilder()
         .with('eth_price_usd', 10_000)
         .build();
-<<<<<<< HEAD
-=======
       const rewardsFee = rewardsFeeBuilder().with('fee', productFee).build();
->>>>>>> origin/staging
       const dedicatedStakingStats = dedicatedStakingStatsBuilder()
         .with(
           'gross_apy',
@@ -304,10 +262,7 @@ describe('NativeStakingMapper', () => {
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-<<<<<<< HEAD
-=======
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -360,18 +315,12 @@ describe('NativeStakingMapper', () => {
         .build();
       const networkStats = networkStatsBuilder().build();
       const dedicatedStakingStats = dedicatedStakingStatsBuilder().build();
-<<<<<<< HEAD
-      mockChainsRepository.getChain.mockResolvedValue(chain);
-      mockStakingRepository.getDeployment.mockResolvedValue(deployment);
-      mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-=======
       const rewardsFee = rewardsFeeBuilder().build();
 
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -394,18 +343,12 @@ describe('NativeStakingMapper', () => {
         .build();
       const networkStats = networkStatsBuilder().build();
       const dedicatedStakingStats = dedicatedStakingStatsBuilder().build();
-<<<<<<< HEAD
-=======
       const rewardsFee = rewardsFeeBuilder().build();
->>>>>>> origin/staging
 
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-<<<<<<< HEAD
-=======
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -428,18 +371,12 @@ describe('NativeStakingMapper', () => {
         .build();
       const networkStats = networkStatsBuilder().build();
       const dedicatedStakingStats = dedicatedStakingStatsBuilder().build();
-<<<<<<< HEAD
-=======
       const rewardsFee = rewardsFeeBuilder().build();
->>>>>>> origin/staging
 
       mockChainsRepository.getChain.mockResolvedValue(chain);
       mockStakingRepository.getDeployment.mockResolvedValue(deployment);
       mockStakingRepository.getNetworkStats.mockResolvedValue(networkStats);
-<<<<<<< HEAD
-=======
       mockStakingRepository.getRewardsFee.mockResolvedValue(rewardsFee);
->>>>>>> origin/staging
       mockStakingRepository.getDedicatedStakingStats.mockResolvedValue(
         dedicatedStakingStats,
       );
@@ -584,11 +521,7 @@ describe('NativeStakingMapper', () => {
     });
   });
 
-<<<<<<< HEAD
-  describe('mapWithdrawInfo', () => {
-=======
   describe('mapRedeemInfo', () => {
->>>>>>> origin/staging
     it('should map a proposed native staking withdraw info', async () => {
       const chain = chainBuilder().build();
       const deployment = deploymentBuilder()

@@ -1,9 +1,5 @@
 import type { ContractsRepository } from '@/domain/contracts/contracts.repository';
-<<<<<<< HEAD
-import { contractBuilder } from '@/domain/contracts/entities/__tests__/contract.builder';
-=======
 import { contractBuilder } from '@/domain/data-decoder/v2/entities/__tests__/contract.builder';
->>>>>>> origin/staging
 import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
 import type { TokenRepository } from '@/domain/tokens/token.repository';
 import type { ILoggingService } from '@/logging/logging.interface';

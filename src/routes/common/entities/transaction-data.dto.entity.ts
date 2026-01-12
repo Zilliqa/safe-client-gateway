@@ -6,12 +6,7 @@ import { NumericStringSchema } from '@/validation/entities/schemas/numeric-strin
 
 export const TransactionDataDtoSchema = z.object({
   data: HexSchema,
-<<<<<<< HEAD
-  to: AddressSchema.optional(),
-  value: NumericStringSchema.optional(),
-=======
   to: AddressSchema,
->>>>>>> origin/staging
 });
 
 export class TransactionDataDto
@@ -19,20 +14,11 @@ export class TransactionDataDto
 {
   @ApiProperty({ description: 'Hexadecimal value' })
   data: `0x${string}`;
-  @ApiPropertyOptional({ description: 'The target Ethereum address' })
-<<<<<<< HEAD
-  to?: `0x${string}`;
-  @ApiPropertyOptional({
-    description: 'The wei amount being sent to a payable function',
-  })
-  value?: string;
-=======
+  @ApiProperty({ description: 'The target Ethereum address' })
   to: `0x${string}`;
->>>>>>> origin/staging
 
-  constructor(data: `0x${string}`, to?: `0x${string}`, value?: string) {
+  constructor(data: `0x${string}`, to: `0x${string}`) {
     this.data = data;
     this.to = to;
-    this.value = value;
   }
 }

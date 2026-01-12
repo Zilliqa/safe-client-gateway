@@ -13,8 +13,6 @@ import type { MultisigTransactionInfoMapper } from '@/routes/transactions/mapper
 import { MultisigTransactionDetailsMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-details.mapper';
 import type { MultisigTransactionExecutionDetailsMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-execution-details.mapper';
 import type { MultisigTransactionStatusMapper } from '@/routes/transactions/mappers/multisig-transactions/multisig-transaction-status.mapper';
-<<<<<<< HEAD
-=======
 import type { IConfigurationService } from '@/config/configuration.service.interface';
 import { TransactionVerifierHelper } from '@/routes/transactions/helpers/transaction-verifier.helper';
 import type { DelegatesV2Repository } from '@/domain/delegate/v2/delegates.v2.repository';
@@ -23,7 +21,6 @@ import type { ILoggingService } from '@/logging/logging.interface';
 import type { IContractsRepository } from '@/domain/contracts/contracts.repository.interface';
 import { Operation } from '@/domain/safe/entities/operation.entity';
 import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
->>>>>>> origin/staging
 
 const addressInfoHelper = jest.mocked({
   getOrDefault: jest.fn(),

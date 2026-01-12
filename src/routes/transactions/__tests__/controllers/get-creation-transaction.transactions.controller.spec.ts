@@ -1,19 +1,4 @@
 import { TestAppProvider } from '@/__tests__/test-app.provider';
-<<<<<<< HEAD
-import { AppModule } from '@/app.module';
-import { IConfigurationService } from '@/config/configuration.service.interface';
-import configuration from '@/config/entities/__tests__/configuration';
-import { TestCacheModule } from '@/datasources/cache/__tests__/test.cache.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { TestNetworkModule } from '@/datasources/network/__tests__/test.network.module';
-import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
-import { NetworkModule } from '@/datasources/network/network.module';
-import type { INetworkService } from '@/datasources/network/network.service.interface';
-import { NetworkService } from '@/datasources/network/network.service.interface';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
-=======
 import { createTestModule } from '@/__tests__/testing-module';
 import { IConfigurationService } from '@/config/configuration.service.interface';
 import { NetworkResponseError } from '@/datasources/network/entities/network.error.entity';
@@ -21,72 +6,37 @@ import type { INetworkService } from '@/datasources/network/network.service.inte
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
 import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
->>>>>>> origin/staging
 import {
   creationTransactionBuilder,
   toJson as creationTransactionToJson,
 } from '@/domain/safe/entities/__tests__/creation-transaction.builder';
 import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
-<<<<<<< HEAD
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import type { INestApplication } from '@nestjs/common';
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
 import { rawify } from '@/validation/entities/raw.entity';
 import type { INestApplication } from '@nestjs/common';
->>>>>>> origin/staging
 import type { Server } from 'net';
 import request from 'supertest';
 
 describe('Get creation transaction', () => {
   let app: INestApplication<Server>;
   let safeConfigUrl: string;
-<<<<<<< HEAD
-  let networkService: jest.MockedObjectDeep<INetworkService>;
-
-  beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule.register(configuration)],
-    })
-      .overrideModule(CacheModule)
-      .useModule(TestCacheModule)
-      .overrideModule(RequestScopedLoggingModule)
-      .useModule(TestLoggingModule)
-      .overrideModule(NetworkModule)
-      .useModule(TestNetworkModule)
-      .overrideModule(QueuesApiModule)
-      .useModule(TestQueuesApiModule)
-      .compile();
-=======
   let safeDecoderUrl: string;
   let networkService: jest.MockedObjectDeep<INetworkService>;
 
   beforeEach(async () => {
     jest.resetAllMocks();
     const moduleFixture = await createTestModule();
->>>>>>> origin/staging
 
     const configurationService = moduleFixture.get<IConfigurationService>(
       IConfigurationService,
     );
     safeConfigUrl = configurationService.getOrThrow('safeConfig.baseUri');
-<<<<<<< HEAD
-=======
     safeDecoderUrl = configurationService.getOrThrow('safeDataDecoder.baseUri');
->>>>>>> origin/staging
     networkService = moduleFixture.get(NetworkService);
 
     app = await new TestAppProvider().provide(moduleFixture);
     await app.init();
   });
 
-<<<<<<< HEAD
-  beforeEach(() => jest.resetAllMocks());
-
-=======
->>>>>>> origin/staging
   afterAll(async () => {
     await app.close();
   });
@@ -95,41 +45,28 @@ describe('Get creation transaction', () => {
     const chain = chainBuilder().build();
     const safe = safeBuilder().build();
     const creationTransaction = creationTransactionBuilder().build();
-<<<<<<< HEAD
-=======
     const dataDecoded = dataDecodedBuilder().build();
->>>>>>> origin/staging
     const getChainUrl = `${safeConfigUrl}/api/v1/chains/${chain.chainId}`;
     const getCreationTransactionUrl = `${chain.transactionService}/api/v1/safes/${safe.address}/creation/`;
     networkService.get.mockImplementation(({ url }) => {
       switch (url) {
         case getChainUrl:
-<<<<<<< HEAD
-          return Promise.resolve({ data: chain, status: 200 });
-        case getCreationTransactionUrl:
-          return Promise.resolve({
-            data: creationTransactionToJson(creationTransaction),
-=======
           return Promise.resolve({ data: rawify(chain), status: 200 });
         case getCreationTransactionUrl:
           return Promise.resolve({
             data: rawify(creationTransactionToJson(creationTransaction)),
->>>>>>> origin/staging
             status: 200,
           });
         default:
           return Promise.reject(new Error(`Could not match ${url}`));
       }
     });
-<<<<<<< HEAD
-=======
     networkService.post.mockImplementation(({ url }) => {
       if (url === `${safeDecoderUrl}/api/v1/data-decoder`) {
         return Promise.resolve({ data: rawify(dataDecoded), status: 200 });
       }
       return Promise.reject(new Error(`Could not match ${url}`));
     });
->>>>>>> origin/staging
 
     await request(app.getHttpServer())
       .get(
@@ -139,21 +76,13 @@ describe('Get creation transaction', () => {
       .expect(({ body }) => {
         expect(body).toEqual({
           ...creationTransaction,
-<<<<<<< HEAD
-=======
           dataDecoded,
->>>>>>> origin/staging
           created: creationTransaction.created.toISOString(),
         });
       });
   });
 
-<<<<<<< HEAD
-  // TODO: Review why the response status code is 503 instead of 404
-  it.skip('should forward Transaction Service errors', async () => {
-=======
   it('should forward Transaction Service errors', async () => {
->>>>>>> origin/staging
     const chain = chainBuilder().build();
     const safe = safeBuilder().build();
     const getChainUrl = `${safeConfigUrl}/api/v1/chains/${chain.chainId}`;
@@ -161,11 +90,7 @@ describe('Get creation transaction', () => {
     networkService.get.mockImplementation(({ url }) => {
       switch (url) {
         case getChainUrl:
-<<<<<<< HEAD
-          return Promise.resolve({ data: chain, status: 200 });
-=======
           return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
         case getCreationTransactionUrl:
           return Promise.reject(
             new NetworkResponseError(new URL(getCreationTransactionUrl), {
@@ -192,11 +117,7 @@ describe('Get creation transaction', () => {
     networkService.get.mockImplementation(({ url }) => {
       switch (url) {
         case getChainUrl:
-<<<<<<< HEAD
-          return Promise.resolve({ data: chain, status: 200 });
-=======
           return Promise.resolve({ data: rawify(chain), status: 200 });
->>>>>>> origin/staging
         case getCreationTransactionUrl:
           return Promise.reject(new Error());
         default:
@@ -223,11 +144,7 @@ describe('Get creation transaction', () => {
           return Promise.reject(new Error());
         case getCreationTransactionUrl:
           return Promise.resolve({
-<<<<<<< HEAD
-            data: creationTransactionToJson(creationTransaction),
-=======
             data: rawify(creationTransactionToJson(creationTransaction)),
->>>>>>> origin/staging
             status: 200,
           });
         default:

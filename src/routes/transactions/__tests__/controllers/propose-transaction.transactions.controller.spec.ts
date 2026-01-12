@@ -1,10 +1,5 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { chainBuilder } from '@/domain/chains/entities/__tests__/chain.builder';
@@ -22,16 +17,6 @@ import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
 import { proposeTransactionDtoBuilder } from '@/routes/transactions/entities/__tests__/propose-transaction.dto.builder';
-<<<<<<< HEAD
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { getAddress } from 'viem';
-import { TestQueuesApiModule } from '@/datasources/queues/__tests__/test.queues-api.module';
-import { QueuesApiModule } from '@/datasources/queues/queues-api.module';
-import type { Server } from 'net';
-=======
 import { concat, getAddress } from 'viem';
 import type { Server } from 'net';
 import { rawify } from '@/validation/entities/raw.entity';
@@ -51,7 +36,6 @@ import { getSafeTxHash } from '@/domain/common/utils/safe';
 import { confirmationBuilder } from '@/domain/safe/entities/__tests__/multisig-transaction-confirmation.builder';
 import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Propose transaction - Transactions Controller (Unit)', () => {
   let app: INestApplication<Server>;

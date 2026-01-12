@@ -4,15 +4,11 @@ import { erc20TransferBuilder } from '@/domain/safe/entities/__tests__/erc20-tra
 import { erc721TransferBuilder } from '@/domain/safe/entities/__tests__/erc721-transfer.builder';
 import { nativeTokenTransferBuilder } from '@/domain/safe/entities/__tests__/native-token-transfer.builder';
 import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
-<<<<<<< HEAD
-import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
-=======
 import {
   erc20TokenBuilder,
   erc721TokenBuilder,
   tokenBuilder,
 } from '@/domain/tokens/__tests__/token.builder';
->>>>>>> origin/staging
 import type { AddressInfoHelper } from '@/routes/common/address-info/address-info.helper';
 import { AddressInfo } from '@/routes/common/entities/address-info.entity';
 import {
@@ -24,18 +20,8 @@ import { Erc721Transfer } from '@/routes/transactions/entities/transfers/erc721-
 import { NativeCoinTransfer } from '@/routes/transactions/entities/transfers/native-coin-transfer.entity';
 import { TransferInfoMapper } from '@/routes/transactions/mappers/transfers/transfer-info.mapper';
 import { getAddress } from 'viem';
-<<<<<<< HEAD
-import type { IConfigurationService } from '@/config/configuration.service.interface';
 import type { SwapTransferInfoMapper } from '@/routes/transactions/mappers/transfers/swap-transfer-info.mapper';
 import type { ILoggingService } from '@/logging/logging.interface';
-
-const configurationService = jest.mocked({
-  getOrThrow: jest.fn(),
-} as jest.MockedObjectDeep<IConfigurationService>);
-=======
-import type { SwapTransferInfoMapper } from '@/routes/transactions/mappers/transfers/swap-transfer-info.mapper';
-import type { ILoggingService } from '@/logging/logging.interface';
->>>>>>> origin/staging
 
 // Note: we mock this as there is a dedicated test for this mapper
 const swapTransferInfoMapper = jest.mocked({

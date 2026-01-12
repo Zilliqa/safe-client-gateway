@@ -1,10 +1,5 @@
 import { faker } from '@faker-js/faker';
 import type { INestApplication } from '@nestjs/common';
-<<<<<<< HEAD
-import type { TestingModule } from '@nestjs/testing';
-import { Test } from '@nestjs/testing';
-=======
->>>>>>> origin/staging
 import request from 'supertest';
 import { TestAppProvider } from '@/__tests__/test-app.provider';
 import { IConfigurationService } from '@/config/configuration.service.interface';
@@ -24,18 +19,6 @@ import {
   toJson as multisigTransactionToJson,
 } from '@/domain/safe/entities/__tests__/multisig-transaction.builder';
 import { safeBuilder } from '@/domain/safe/entities/__tests__/safe.builder';
-<<<<<<< HEAD
-import { tokenBuilder } from '@/domain/tokens/__tests__/token.builder';
-import { TokenType } from '@/domain/tokens/entities/token.entity';
-import { TestLoggingModule } from '@/logging/__tests__/test.logging.module';
-import type { Transfer } from '@/domain/safe/entities/transfer.entity';
-import type { INetworkService } from '@/datasources/network/network.service.interface';
-import { NetworkService } from '@/datasources/network/network.service.interface';
-import { AppModule } from '@/app.module';
-import { CacheModule } from '@/datasources/cache/cache.module';
-import { RequestScopedLoggingModule } from '@/logging/logging.module';
-import { NetworkModule } from '@/datasources/network/network.module';
-=======
 import { erc20TokenBuilder } from '@/domain/tokens/__tests__/token.builder';
 import { type Token } from '@/domain/tokens/entities/token.entity';
 import type {
@@ -44,7 +27,6 @@ import type {
 } from '@/domain/safe/entities/transfer.entity';
 import type { INetworkService } from '@/datasources/network/network.service.interface';
 import { NetworkService } from '@/datasources/network/network.service.interface';
->>>>>>> origin/staging
 import {
   erc20TransferBuilder,
   toJson as erc20TransferToJson,
@@ -54,13 +36,10 @@ import { erc20TransferEncoder } from '@/domain/relay/contracts/__tests__/encoder
 import type { EthereumTransaction } from '@/domain/safe/entities/ethereum-transaction.entity';
 import type { MultisigTransaction } from '@/domain/safe/entities/multisig-transaction.entity';
 import type { Server } from 'net';
-<<<<<<< HEAD
-=======
 import { rawify } from '@/validation/entities/raw.entity';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import type { DataDecoded } from '@/domain/data-decoder/v2/entities/data-decoded.entity';
 import { createTestModule } from '@/__tests__/testing-module';
->>>>>>> origin/staging
 
 describe('Transactions History Controller (Unit) - Imitation Transactions', () => {
   faker.seed(123);

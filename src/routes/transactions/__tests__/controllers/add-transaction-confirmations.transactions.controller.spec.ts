@@ -37,11 +37,7 @@ import {
   LoggingService,
 } from '@/logging/logging.interface';
 import { getAddress } from 'viem';
-<<<<<<< HEAD
-import type { Server } from 'net';
-=======
 import { dataDecodedBuilder } from '@/domain/data-decoder/v2/entities/__tests__/data-decoded.builder';
->>>>>>> origin/staging
 
 describe('Add transaction confirmations - Transactions Controller (Unit)', () => {
   let app: INestApplication<Server>;

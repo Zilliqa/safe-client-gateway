@@ -15,11 +15,8 @@ export class CreationTransaction implements DomainCreationTransaction {
   masterCopy: `0x${string}` | null;
   @ApiPropertyOptional({ type: String, nullable: true })
   setupData: `0x${string}` | null;
-<<<<<<< HEAD
-=======
   @ApiPropertyOptional({ type: String, nullable: true })
   saltNonce: string | null;
->>>>>>> origin/staging
   @ApiPropertyOptional({ type: DataDecoded, nullable: true })
   dataDecoded: DataDecoded | null;
 
@@ -30,10 +27,7 @@ export class CreationTransaction implements DomainCreationTransaction {
     factoryAddress: `0x${string}`,
     masterCopy: `0x${string}` | null,
     setupData: `0x${string}` | null,
-<<<<<<< HEAD
-=======
     saltNonce: string | null,
->>>>>>> origin/staging
     dataDecoded: DataDecoded | null,
   ) {
     this.created = created;
@@ -42,10 +36,7 @@ export class CreationTransaction implements DomainCreationTransaction {
     this.factoryAddress = factoryAddress;
     this.masterCopy = masterCopy;
     this.setupData = setupData;
-<<<<<<< HEAD
-=======
     this.saltNonce = saltNonce;
->>>>>>> origin/staging
     this.dataDecoded = dataDecoded;
   }
 }

@@ -1,22 +1,9 @@
 import {
-<<<<<<< HEAD
-=======
   BadRequestException,
->>>>>>> origin/staging
   Body,
   Controller,
   Delete,
   HttpCode,
-<<<<<<< HEAD
-  Param,
-  Post,
-} from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { RegisterDeviceDto } from '@/routes/notifications/v1/entities/register-device.dto.entity';
-import { NotificationsService } from '@/routes/notifications/v1/notifications.service';
-import { ValidationPipe } from '@/validation/pipes/validation.pipe';
-import { AddressSchema } from '@/validation/entities/schemas/address.schema';
-=======
   Inject,
   Param,
   Post,
@@ -38,16 +25,10 @@ import {
 } from 'viem';
 import { UuidSchema } from '@/validation/entities/schemas/uuid.schema';
 import { DeviceType } from '@/domain/notifications/v1/entities/device.entity';
->>>>>>> origin/staging
 
 @ApiTags('notifications')
 @Controller({ path: '', version: '1' })
 export class NotificationsController {
-<<<<<<< HEAD
-  constructor(private readonly notificationsService: NotificationsService) {}
-
-  @ApiOkResponse()
-=======
   private static REGISTRATION_TIMESTAMP_EXPIRY = 5 * 60;
   constructor(
     @Inject(NotificationsServiceV2)
@@ -56,38 +37,11 @@ export class NotificationsController {
 
   @ApiOkResponse()
   @ApiOperation({ deprecated: true })
->>>>>>> origin/staging
   @Post('register/notifications')
   @HttpCode(200)
   async registerDevice(
     @Body() registerDeviceDto: RegisterDeviceDto,
   ): Promise<void> {
-<<<<<<< HEAD
-    return this.notificationsService.registerDevice(registerDeviceDto);
-  }
-
-  @Delete('chains/:chainId/notifications/devices/:uuid')
-  async unregisterDevice(
-    @Param('chainId') chainId: string,
-    @Param('uuid') uuid: string,
-  ): Promise<void> {
-    return this.notificationsService.unregisterDevice({ chainId, uuid });
-  }
-
-  @Delete('chains/:chainId/notifications/devices/:uuid/safes/:safeAddress')
-  async unregisterSafe(
-    @Param('chainId') chainId: string,
-    @Param('uuid') uuid: string,
-    @Param('safeAddress', new ValidationPipe(AddressSchema))
-    safeAddress: `0x${string}`,
-  ): Promise<void> {
-    return this.notificationsService.unregisterSafe({
-      chainId,
-      uuid,
-      safeAddress,
-    });
-  }
-=======
     if (registerDeviceDto.timestamp) {
       this.validateTimestamp(parseInt(registerDeviceDto.timestamp));
     }
@@ -275,5 +229,4 @@ export class NotificationsController {
       ),
     );
   }
->>>>>>> origin/staging
 }
